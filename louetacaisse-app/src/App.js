@@ -31,43 +31,45 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
   }), [])
 
   return (
-    <Container>
-      <Navbar
-        color="light"
-        expand="md"
-        light>
-      <NavbarBrand href="/">
-        CPINFO2021
-      </NavbarBrand>
-      <NavbarToggler onClick={function noRefCheck() { }}/>
-      <Collapse navbar>
-        <Nav
-          className="me-auto"
-          navbar
-        >
-          <NavItem>
-            <NavLink to="/" tag={Link}>
-              Home
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink to="/Products" tag={Link}>
-              Products
-            </NavLink>
-          </NavItem>
-        </Nav>
-        <Button onClick={user ? () => signOut(auth) : () => signInWithRedirect(auth, provider)}>{user ? user.email : "Login"}</Button>
-      </Collapse>
-      </Navbar>
-      <Row>
-        <Col>
-          <Routes>
-            <Route path="/" element={<Home />}/>
-            <Route path="products" element={<Products />}/>
-          </Routes>
-        </Col>
-      </Row>
-    </Container>
+      <Container>
+        <Navbar
+          color="light"
+          expand="md"
+          light>
+        <NavbarBrand href="/">
+        <img
+          width={"30%"}
+          src="loutacaisse.png" />
+        </NavbarBrand>
+        <NavbarToggler onClick={function noRefCheck() { }}/>
+        <Collapse navbar>
+          <Nav
+            className="me-auto"
+            navbar
+          >
+            <NavItem>
+              <NavLink to="/" tag={Link}>
+                Home
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink to="/Products" tag={Link}>
+                Products
+              </NavLink>
+            </NavItem>
+          </Nav>
+          <Button onClick={user ? () => signOut(auth) : () => signInWithRedirect(auth, provider)}>{user ? user.email : "Login"}</Button>
+        </Collapse>
+        </Navbar>
+        <Row>
+          <Col>
+            <Routes>
+              <Route path="/" element={<Home />}/>
+              <Route path="products" element={<Products />}/>
+            </Routes>
+          </Col>
+        </Row>
+      </Container>
   );
 }
 
