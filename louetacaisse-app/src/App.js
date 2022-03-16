@@ -1,21 +1,26 @@
-// import logo from './logo.svg';
-// import './App.css';
-// import {FirebaseApp} from "./firebase";
-
 import app from "./firebase";
 import { GoogleAuthProvider, getAuth, signInWithRedirect, onAuthStateChanged, signOut } from "firebase/auth";
-import {container, col, row, button} from "reactstrap";
+import {Container, Col, Row, Button, Navbar, NavbarBrand, NavbarToggler, Collapse, Nav, NavItem, NavLink} from "reactstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from 'react';
+import {Route, Routes, Link} from "react-router-dom"
 
 const provider = new GoogleAuthProvider();
-const auht = getAuth(app);
+const auth = getAuth(app);
+
+function Home(){
+  return <div>Home</div>
+}
+function Products(){
+  return <div>Products</div>
+}
+
 
 function App() {
 const [user, setUser] = useState(null)
 
 console.log("Test", user)
-useEffect(() => onAuthStateChanged(auht, (newUser) => {
+useEffect(() => onAuthStateChanged(auth, (newUser) => {
   console.log("auth",newUser)
   if (newUser){
     console.log(newUser.uid, newUser.email)
@@ -26,16 +31,45 @@ useEffect(() => onAuthStateChanged(auht, (newUser) => {
   }), [])
 
   return (
-    <div>
-      <header>
-        <h1>Louetacaisse</h1>
-        <div>
-          Hello {user ? user.email : "guest"}
-        <button onClick={user ? () => signOut(auht) : () => signInWithRedirect(auht, provider)}>{user ? "Logout" : "Login"}</button>
-        </div>
-      </header>
-    </div>
+    <Container>
+      <Navbar
+        color="light"
+        expand="md"
+        light>
+      <NavbarBrand href="/">
+        CPINFO2021
+      </NavbarBrand>
+      <NavbarToggler onClick={function noRefCheck() { }}/>
+      <Collapse navbar>
+        <Nav
+          className="me-auto"
+          navbar
+        >
+          <NavItem>
+            <NavLink to="/" tag={Link}>
+              Home
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink to="/Products" tag={Link}>
+              Products
+            </NavLink>
+          </NavItem>
+        </Nav>
+        <Button onClick={user ? () => signOut(auth) : () => signInWithRedirect(auth, provider)}>{user ? user.email : "Login"}</Button>
+      </Collapse>
+      </Navbar>
+      <Row>
+        <Col>
+          <Routes>
+            <Route path="/" element={<Home />}/>
+            <Route path="products" element={<Products />}/>
+          </Routes>
+        </Col>
+      </Row>
+    </Container>
   );
 }
+
 
 export default App;
