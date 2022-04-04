@@ -44,7 +44,35 @@ function Cars(){
 }
 
 function Settings(){
-  return <div>Settings</div>
+  return (
+    <table>
+      <tr>
+      <td>Name :</td>
+      <td><input type="text" id="name" /></td>
+      </tr>
+      <tr>
+      <td>First name :</td>
+      <td><input type="text" id="firstname" /></td>
+      </tr>
+      <tr>
+      <td>Birth date :</td>
+      <td><input type="date" id="birthdate" /></td>
+      </tr>
+      <tr>
+      <td>Adress :</td>
+      <td><input type="text" id="adress" /></td>
+      </tr>
+      <tr>
+      <td>Phone number :</td>
+      <td><input type="text" id="phonenumber" /></td>
+      </tr>
+      <tr>
+      <td>Licence number :</td>
+      <td><input type="text" id="licencenumber" /></td>
+      </tr>
+      <Button onClick={AddUser}>Valider</Button>      
+    </table>
+  )
 }
 
 
