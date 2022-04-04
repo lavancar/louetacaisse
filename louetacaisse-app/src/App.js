@@ -4,15 +4,43 @@ import {Container, Col, Row, Button, Navbar, NavbarBrand, NavbarToggler, Collaps
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from 'react';
 import {Route, Routes, Link} from "react-router-dom"
+import { collection, doc, Firestore, getDocs, getFirestore } from "firebase/firestore";
+
+
 
 const provider = new GoogleAuthProvider();
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 function Home(){
   return <div>Home</div>
 }
-function Voitures(){
-  return <div>Liste des voitures</div>
+function Cars(){
+  const [cars, setCars] = useState([])
+  useEffect(() => {
+    async function getCars(){
+      const querySnapshot = await getDocs(collection(db, "Cars"));
+      querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        console.log(doc.id, " => ", doc.data());
+      });
+      setCars(querySnapshot.docs.map(doc => doc.data()))
+    }
+    getCars()
+  }, [])
+
+  return <table>
+    <thead>
+        <td>Brand</td>
+        <td>Model</td>
+        <td>Plate</td>
+    </thead>
+    <tbody>
+      <td>
+        <li>key={doc.id}</li>
+        </td>
+    </tbody>
+  </table>
 }
 
 function Settings(){
@@ -21,7 +49,12 @@ function Settings(){
 
 
 function App() {
-const [user, setUser] = useState(null)
+const [user, setUser] = useState([])
+
+/******************************** api get firebase ==> plusieurs useEffect possible ? ******************************************/ 
+
+
+
 
 console.log("Test", user)
 useEffect(() => onAuthStateChanged(auth, (newUser) => {
@@ -33,6 +66,7 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
     setUser(null)
   }
   }), [])
+
 
   return (
       <Container>
@@ -76,7 +110,7 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
           <Col>
             <Routes>
               <Route path="/" element={<Home />}/>
-              <Route path="Voitures" element={<Products />}/>
+              <Route path="Voitures" element={<Cars />}/>
               <Route path="Settings" element={<Settings />}/>
             </Routes>
           </Col>
