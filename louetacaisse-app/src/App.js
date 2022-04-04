@@ -7,10 +7,13 @@ import {Route, Routes, Link} from "react-router-dom"
 import { collection, doc, Firestore, getDocs, getFirestore } from "firebase/firestore";
 
 
-
 const provider = new GoogleAuthProvider();
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+function AddUser(){
+
+}
 
 function Home(){
   return <div>Home</div>
@@ -20,11 +23,11 @@ function Cars(){
   useEffect(() => {
     async function getCars(){
       const querySnapshot = await getDocs(collection(db, "Cars"));
-      querySnapshot.forEach((doc) => {
+      querySnapshot.forEach((car) => {
         // doc.data() is never undefined for query doc snapshots
-        console.log(doc.id, " => ", doc.data());
+        console.log(car.id, " => ", car.data());
       });
-      setCars(querySnapshot.docs.map(doc => doc.data()))
+      setCars(querySnapshot.docs.map(car => car.data()))
     }
     getCars()
   }, [])
@@ -36,9 +39,24 @@ function Cars(){
         <td>Plate</td>
     </thead>
     <tbody>
-      <td>
-        <li>key={doc.id}</li>
-        </td>
+      {cars.map((car) => {
+        console.log(car);
+        return (
+          <tr>
+            <td>
+              <li>{car.Brand}</li>
+            </td>
+            <td>
+              <li>{car.Model}</li>
+            </td>
+            <td>
+              <li>{car.PlateNumber}</li>
+            </td>
+          </tr>
+        )
+        
+      }) }
+      
     </tbody>
   </table>
 }
