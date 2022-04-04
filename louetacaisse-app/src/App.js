@@ -1,4 +1,5 @@
 import app from "./firebase";
+import "./App.css"
 import { GoogleAuthProvider, getAuth, signInWithRedirect, onAuthStateChanged, signOut } from "firebase/auth";
 import {Container, Col, Row, Button, Navbar, NavbarBrand, NavbarToggler, Collapse, Nav, NavItem, NavLink} from "reactstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -32,11 +33,14 @@ function Cars(){
     getCars()
   }, [])
 
-  return <table>
+  return <table id="carsTable">
     <thead>
         <td>Brand</td>
         <td>Model</td>
         <td>Plate</td>
+        <td>Fuel</td>
+        <td>Price</td>
+        <td>Power</td>
     </thead>
     <tbody>
       {cars.map((car) => {
@@ -51,6 +55,15 @@ function Cars(){
             </td>
             <td>
               <li>{car.PlateNumber}</li>
+            </td>
+            <td>
+              <li>{car.Fuel}</li>
+            </td>
+            <td>
+              <li>{car.Price}</li>
+            </td>
+            <td>
+              <li>{car.HP}</li>
             </td>
           </tr>
         )
@@ -164,6 +177,7 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
       </Container>
   );
 }
+
 
 
 export default App;
