@@ -15,6 +15,10 @@ function Voitures(){
   return <div>Liste des voitures</div>
 }
 
+function Settings(){
+  return <div>Settings</div>
+}
+
 
 function App() {
 const [user, setUser] = useState(null)
@@ -54,10 +58,18 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
             </NavItem>
             <NavItem>
               <NavLink to="/Voitures" tag={Link}>
-                Voitures
+              Voitures
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink to="/Settings" tag={Link}>
+              <img
+          width={"30%"}
+          src="gear.png" />
               </NavLink>
             </NavItem>
           </Nav>
+          {/* <Button><img src={"gear.png"} /></Button> */}
           <Button onClick={user ? () => signOut(auth) : () => signInWithRedirect(auth, provider)}>{user ? user.email : "Login"}</Button>
         </Collapse>
         </Navbar>
@@ -65,7 +77,8 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
           <Col>
             <Routes>
               <Route path="/" element={<Home />}/>
-              <Route path="voitures" element={<Voitures />}/>
+              <Route path="Voitures" element={<Products />}/>
+              <Route path="Settings" element={<Settings />}/>
             </Routes>
           </Col>
         </Row>
