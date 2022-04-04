@@ -69,7 +69,6 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
               </NavLink>
             </NavItem>
           </Nav>
-          {/* <Button><img src={"gear.png"} /></Button> */}
           <Button onClick={user ? () => signOut(auth) : () => signInWithRedirect(auth, provider)}>{user ? user.email : "Login"}</Button>
         </Collapse>
         </Navbar>
