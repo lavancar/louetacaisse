@@ -1,133 +1,15 @@
 import app from "./firebase";
-import "./App.css"
+import "./App.css";
 import { GoogleAuthProvider, getAuth, signInWithRedirect, onAuthStateChanged, signOut } from "firebase/auth";
 import {Container, Col, Row, Button, Navbar, NavbarBrand, NavbarToggler, Collapse, Nav, NavItem, NavLink} from "reactstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from 'react';
-import {Route, Routes, Link, useParams} from "react-router-dom"
-import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc } from "firebase/firestore";
-
+import {Route, Routes, Link} from "react-router-dom"
+import { collection, doc, Firestore, getDocs, getFirestore } from "firebase/firestore";
 
 const provider = new GoogleAuthProvider();
 const auth = getAuth(app);
 const db = getFirestore(app);
-
-
-
-function Profil(props){
-  console.log("props = " ,props)
-  const [Profil, setProfils] = useState({})
-  useEffect(() => {
-    async function getProfil(){
-      if(! props.user) {
-        return 
-      }
-      const docRef = doc(db, "Users", props.user.uid);
-      console.log("hello")
-      const querySnapshot = await getDoc(docRef);
-      console.log("query = ")
-      console.log(querySnapshot.data())
-      setProfils(querySnapshot.data())
-    }
-    getProfil()
-  }, [props.user])
-
-  return <table id="userTable">
-    <tbody>
-      <tr>
-        <td>UID : </td>
-        <td>{props.user?.uid ?? ''}</td>
-      </tr>
-      <tr>
-        <td>Name : </td>
-        <td>{Profil.Name ?? ''}</td>
-      </tr>
-      <tr>
-        <td>First Name : </td>
-        <td>{Profil.Firstname ?? ''}</td>
-      </tr>
-      <tr>
-        <td>Phone Number : </td>
-        <td>{Profil.Phonenumber ?? ''}</td>
-      </tr>
-      <tr>
-        <td>Email : </td>
-        <td>{props.user?.email ?? ''}</td>
-      </tr>
-      <tr>
-        <td>Licence Number : </td>
-        <td>{Profil.Licencenumber ?? ''}</td>
-      </tr>
-    </tbody>
-    <Button><Link to={`/Update/${props.user?.uid}`}>UPDATE</Link></Button>
-
-  </table>
-  
-}
-
-
-function EditUser(props){
-
-  const uid = useParams().uid ?? props.user.uid
-  const [name, setName] = useState("")
-  const [firstName, setfirstName] = useState("")
-  const [birthDate, setBirthDate] = useState("")
-  const [Adress, setAdress] = useState("")
-  const [Phone, setPhone] = useState("")
-  const [Licence, setLicence] = useState("")
-  const [ProfilPicture, setPicture] = useState("")
-
-  async function addUser(user){
-
-    const querySnapshot = await setDoc(doc(db, "Users", uid), {
-      Name: name,
-      Firstname: firstName,
-      Birthdate: birthDate,
-      Adress: Adress,
-      Phonenumber: Phone,
-      Licencenumber: Licence,
-      ProfilPicture: ProfilPicture,
-    });
-      
-  }
-  return (
-    <table id="tableSetting">
-      <tr>
-      <td>Name :</td>
-      <td><input type="text" id="name" value={name} onChange={e=> setName(e.target.value)} /></td>
-      </tr>
-      <tr>
-      <td>First name :</td>
-      <td><input type="text" id="firstname" value={firstName} onChange={e=> setfirstName(e.target.value)}/></td>
-      </tr>
-      <tr>
-      <td>Birth date :</td>
-      <td><input type="date" id="birthdate"  onChange={e=> setBirthDate(e.target.value)}/></td>
-      </tr>
-      <tr>
-      <td>Adress :</td>
-      <td><input type="text" id="adress" value={Adress} onChange={e=> setAdress(e.target.value)}/></td>
-      </tr>
-      <tr>
-      <td>Phone number :</td>
-      <td><input type="number" id="phonenumber" value={Phone} onChange={e=> setPhone(e.target.value)}/></td>
-      </tr>
-      <tr>
-      <td>Licence number :</td>
-      <td><input type="number" id="licencenumber" value={Licence} onChange={e=> setLicence(e.target.value)}/></td>
-      </tr>
-      <tr>
-      <td>Profil Picture :</td>
-      <td><input type="text" id="ProfilPicture" value={ProfilPicture} onChange={e=> setPicture(e.target.value)}/></td>
-      </tr>
-      <Button><Link to={`/Profil/${props.user.uid}`}>Back</Link></Button>
-      <Button onClick={addUser}>Valider</Button>      
-    </table>
-  )
-}
-
-
-
 
 function Home(){
   return <div>Home</div>
@@ -194,6 +76,96 @@ function Cars(){
   </table>
 }
 
+function CreationVoiture(){
+  return (<div id="div_CreationVoiture" >
+  <table border="1">
+    <tr colspan="2">Ajout d'une voiture dans le catalogue</tr>
+    <br/>
+    <tr
+    >
+      <td>Modèle de la voiture</td>
+      <td><input type="text" id="ModelVoiture"></input></td>
+    </tr>
+    <tr>
+      <td>Type d'essence</td>
+      <td><input type="text" id="EssenceVoiture"></input></td>
+    </tr>
+    <tr>
+      <td>Marque de la voiture</td>
+      <td><input type="text" id="NomVoiture"></input></td>
+    </tr>
+    <tr>
+      <td>Plaque d'immatriculation</td>
+      <td><input type="text" id="Immatriculation"></input></td>
+    </tr>
+    <tr>
+      <td> Prix de vente (€)</td>
+      <td><input type="text" id="PrixVente"></input></td>
+    </tr>
+
+    <button onClick={database}> Enregistrer voiture</button>
+
+  </table>
+
+
+  </div>
+  )
+}
+function database(){
+  
+  var Model_voiture = document.getElementById('ModelVoiture').value;
+  var EssenceVoiture = document.getElementById('EssenceVoiture').value;
+  var NomVoiture = document.getElementById('NomVoiture').value;
+  var Immatriculation = document.getElementById('Immatriculation').value;
+  var PrixVente = document.getElementById('PrixVente').value;
+  
+  console.log('BTN clicked');
+  console.log('Model_voiture = ' + Model_voiture);
+  console.log('EssenceVoiture = ' + EssenceVoiture);
+  console.log('NomVoiture = ' + NomVoiture);
+  console.log('Immatriculation = ' + Immatriculation);
+  console.log('PrixVente = ' + PrixVente);
+
+
+
+}
+
+function Liste_voiture(){
+  //Je fais mes requêtes pour avoir une liste de mes voitures
+
+  const [cars, setCars] = useState([])
+  useEffect(() => {
+    async function getCars(){
+      const querySnapshot = await getDocs(collection(db, "Cars"));
+      querySnapshot.forEach((doc) => {
+        console.log(doc.id, " => ", doc.data());
+
+      });
+      setCars(querySnapshot.docs.map(doc => doc.data()))
+    }
+    getCars()
+  }, [])
+
+  
+  return(
+  <div>
+    <table>
+      <tr>
+        <td>Modèle de la voiture</td>
+        <td>Kilométrage</td>
+        <td>Modèle</td>
+      </tr>
+      <tr>
+        <li>key={doc.Model}</li>
+      </tr>
+    </table>
+  </div>
+ );
+
+} 
+
+
+
 
 function App() {
 const [user, setUser] = useState(null)
@@ -214,21 +186,13 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
 
   return (
       <Container>
-        <Navbar
-          color="light"
-          expand="md"
-          light>
+        <Navbar color="light" expand="md" light>
         <NavbarBrand href="/">
-        <img
-          width={"30%"}
-          src="loutacaisse.png" />
+          <img width={"30%"} src="loutacaisse.png" />
         </NavbarBrand>
         <NavbarToggler onClick={function noRefCheck() { }}/>
         <Collapse navbar>
-          <Nav
-            className="me-auto"
-            navbar
-          >
+          <Nav className="me-auto" navbar >
             <NavItem>
               <NavLink to="/" tag={Link}>
                 Home
@@ -252,6 +216,16 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
           />
               </NavLink>
             </NavItem>
+            <NavItem>
+              <NavLink to="/CreationVoiture" tag={Link}>
+              Ajouter une voiture
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink to="/Liste_voiture" tag={Link}>
+              Liste des voitures 
+              </NavLink>
+            </NavItem>
           </Nav>
           <Button onClick={user ? () => signOut(auth) : () => signInWithRedirect(auth, provider)}>{user ? user.email : "Login"}</Button>
         </Collapse>
@@ -260,15 +234,9 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
           <Col>
             <Routes>
               <Route path="/" element={<Home />}/>
-              <Route path="Voitures" element={<Cars />}/>
-              <Route path="Profil" element={<Profil user={user} />}>
-                <Route path=":uid" element={<Profil/>}>
-                </Route>
-                
-              </Route>
-              <Route path="Update" element={<EditUser  user={user}/>}>
-                    <Route path=":uid" element={<EditUser  user={user}/>}/>
-                  </Route>
+              <Route path="products" element={<Products />}/>
+              <Route path="CreationVoiture" element={<CreationVoiture />}/>
+              <Route path="Liste_voiture" element={<Liste_voiture />}/>
             </Routes>
           </Col>
         </Row>

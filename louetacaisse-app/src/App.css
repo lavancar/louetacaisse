@@ -37,25 +37,6 @@
   }
 }
 
-li{
-  list-style: none;
-}
-
-#carsTable, #userTable{
+table, td, th, td {
   border: 1px solid black;
-  margin-top: 5%;
-  width: 90%;
-  margin-left: 4%;
-}
-
-td{
-  text-align: center;
-}
-
-thead{
-  background-color: lightgray;
-}
-
-#tableSetting{
-  margin-top: 5%;
 }
