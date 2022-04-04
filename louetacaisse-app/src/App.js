@@ -11,8 +11,8 @@ const auth = getAuth(app);
 function Home(){
   return <div>Home</div>
 }
-function Products(){
-  return <div>Products</div>
+function Voitures(){
+  return <div>Liste des voitures</div>
 }
 
 
@@ -53,8 +53,8 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink to="/Products" tag={Link}>
-                Products
+              <NavLink to="/Voitures" tag={Link}>
+                Voitures
               </NavLink>
             </NavItem>
           </Nav>
@@ -65,7 +65,7 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
           <Col>
             <Routes>
               <Route path="/" element={<Home />}/>
-              <Route path="products" element={<Products />}/>
+              <Route path="voitures" element={<Voitures />}/>
             </Routes>
           </Col>
         </Row>
