@@ -5,7 +5,7 @@ import {Container, Col, Row, Button, Navbar, NavbarBrand, NavbarToggler, Collaps
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from 'react';
 import {Route, Routes, Link} from "react-router-dom"
-import { collection, doc, Firestore, getDocs, getFirestore } from "firebase/firestore";
+import { collection, doc, Firestore, getDocs, getFirestore, setDoc } from "firebase/firestore";
 
 
 const provider = new GoogleAuthProvider();
@@ -13,8 +13,87 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 function AddUser(){
-
+  useEffect(() => {
+    async function postUser(){
+      const querySnapshot = await setDoc(collection(db, "Users"), {
+        Name: document.getElementById("username").value,
+        Firstname: document.getElementById("firstname").value,
+        Birthdate: document.getElementById("birthdate").value,
+        Adress: document.getElementById("adress").value,
+        Phonenumber: document.getElementById("phonenumber").value,
+        Licencenumber: document.getElementById("licencenumber").value
+      });
+    }
+    postUser()
+  })
+  
 }
+
+function Profil(){
+  const [Profils, setProfils] = useState([])
+  useEffect(() => {
+    async function getProfil(){
+      const querySnapshot = await getDocs(collection(db, "Users"));
+      querySnapshot.forEach((user) => {
+        // doc.data() is never undefined for query doc snapshots
+        // console.log(car.id, " => ", car.data());
+      });
+      setProfils(querySnapshot.docs.map(user => user.data()))
+    }
+    getProfil()
+  }, [])
+
+  return <table id="userTable">
+  <thead>
+      <td>Name</td>
+      <td>First Name</td>
+      <td>Birth Date</td>
+      <td>Adress</td>
+      <td>Phone Number</td>
+      <td>Subscription Date</td>
+      <td>Edit</td>
+  </thead>
+  <tbody>
+    {Profils.map((user) => {
+      // console.log(car);
+      return (
+        <tr>
+          <td>
+            <li>{user.Name}</li>
+          </td>
+          <td>
+            <li>{user.FirstName}</li>
+          </td>
+          {/* <td>
+            <li>{user.BirthDate}</li>
+          </td> */}
+          <td>
+
+          </td>
+          <td>
+            <li>{user.Adress}</li>
+          </td>
+          <td>
+            <li>{user.PhoneNumber}</li>
+          </td>
+          <td>
+            bonjour
+          </td>
+          <td>
+            <Button onClick={Settings()}>Edit</Button>
+          </td>
+          {/* <td>
+            <li>{user.SubscriptionDate}</li>
+          </td> */}
+        </tr>
+      )
+      
+    }) }
+    
+  </tbody>
+</table>
+}
+
 
 function Home(){
   return <div>Home</div>
@@ -76,7 +155,7 @@ function Cars(){
 
 function Settings(){
   return (
-    <table>
+    <table id="tableSetting">
       <tr>
       <td>Name :</td>
       <td><input type="text" id="name" /></td>
@@ -155,6 +234,11 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
               </NavLink>
             </NavItem>
             <NavItem>
+              <NavLink to="/Profil" tag={Link}>
+              Profil
+              </NavLink>
+            </NavItem>
+            <NavItem>
               <NavLink to="/Settings" tag={Link}>
               <img
           width={"30%"}
@@ -171,6 +255,7 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
               <Route path="/" element={<Home />}/>
               <Route path="Voitures" element={<Cars />}/>
               <Route path="Settings" element={<Settings />}/>
+              <Route path="Profil" element={<Profil />}/>
             </Routes>
           </Col>
         </Row>
