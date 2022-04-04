@@ -5,7 +5,8 @@ import {Container, Col, Row, Button, Navbar, NavbarBrand, NavbarToggler, Collaps
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from 'react';
 import {Route, Routes, Link} from "react-router-dom"
-import { collection, doc, Firestore, getDocs, getFirestore } from "firebase/firestore";
+import { addDoc, collection, doc, Firestore, getDocs, getFirestore } from "firebase/firestore";
+
 
 const provider = new GoogleAuthProvider();
 const auth = getAuth(app);
@@ -34,7 +35,7 @@ function CreationVoiture(){
     </tr>
     <tr>
       <td>Marque de la voiture</td>
-      <td><input type="text" id="NomVoiture"></input></td>
+      <td><input type="text" id="MarqueVoiture"></input></td>
     </tr>
     <tr>
       <td>Plaque d'immatriculation</td>
@@ -43,6 +44,10 @@ function CreationVoiture(){
     <tr>
       <td> Prix de vente (€)</td>
       <td><input type="text" id="PrixVente"></input></td>
+    </tr>
+    <tr>
+      <td> Puissance </td>
+      <td><input type="text" id="Puisance"></input></td>
     </tr>
 
     <button onClick={database}> Enregistrer voiture</button>
@@ -53,20 +58,26 @@ function CreationVoiture(){
   </div>
   )
 }
-function database(){
+async function database(){
   
   var Model_voiture = document.getElementById('ModelVoiture').value;
   var EssenceVoiture = document.getElementById('EssenceVoiture').value;
-  var NomVoiture = document.getElementById('NomVoiture').value;
+  var MarqueVoiture = document.getElementById('MarqueVoiture').value;
   var Immatriculation = document.getElementById('Immatriculation').value;
   var PrixVente = document.getElementById('PrixVente').value;
-  
-  console.log('BTN clicked');
-  console.log('Model_voiture = ' + Model_voiture);
-  console.log('EssenceVoiture = ' + EssenceVoiture);
-  console.log('NomVoiture = ' + NomVoiture);
-  console.log('Immatriculation = ' + Immatriculation);
-  console.log('PrixVente = ' + PrixVente);
+  var Puissance = document.getElementById('Puissance').value;
+  //addDoc => remplir la base
+  const PUSH = await addDoc(collection(db,'Cars'), {
+    Brand: MarqueVoiture,
+    Model: Model_voiture,
+    Plate: Immatriculation,
+    Fuel: EssenceVoiture,
+    Price: PrixVente,
+    Power: Puissance,
+  });
+  //.then(() => {
+    //console.log('User added!');
+  //});
 
 
 
