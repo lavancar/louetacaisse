@@ -160,6 +160,15 @@ function Liste_voiture(){
     getCars()
   }, [])
 
+
+ async function EditVoiture(cars){
+      console.log(cars);
+     
+
+   
+  }
+
+
   return (<table id="carsTable">
     <thead>
         <td>Brand</td>
@@ -168,6 +177,7 @@ function Liste_voiture(){
         <td>Fuel</td>
         <td>Price</td>
         <td>Power</td>
+        <td>Edition</td>
     </thead>
     <tbody>
       {cars.map((car) => {
@@ -192,16 +202,26 @@ function Liste_voiture(){
             <td>
               <li>{car.HP}</li>
             </td>
+            <td>
+              <button onClick={EditVoiture(cars)}>Edit</button>
+            </td>
+
           </tr>
         )
         
       }) }
       
+      
     </tbody>
   </table>
   );
 
-} 
+}
+
+
+
+
+
 function Profil(props){
   
   const uid = useParams().uid ?? props.user.uid
