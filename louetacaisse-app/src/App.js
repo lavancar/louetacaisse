@@ -21,6 +21,9 @@ function Products(){
 
 //Génère la page pour ajouter des voitures
 function CreationVoiture(){
+
+
+
   return (<div id="div_CreationVoiture" >
   <table border="1">
     <tr colspan="2">Ajout d'une voiture dans le catalogue</tr>
@@ -97,16 +100,57 @@ function Liste_voiture(){
         // doc.data() is never undefined for query doc snapshots
         console.log(car.id, " => ", car.data());
       });
-      setCars(querySnapshot.docs.map(car => car.data()))
+      setCars(querySnapshot.docs.map(car => {
+        return {
+          id: car.id, //Place un id : dans mon tableau
+          ...car.data()//... => clone | car.data() => toutes les données que j'ai récupéré  
+        }
+      }))
     }
     getCars()
   }, [])
 
 
- async function EditVoiture(cars){
-      console.log(cars);
+ async function EditVoiture(carsID){
+      console.log(carsID);
+      const docRef = doc(db, "Cars", carsID);
+      const docSnap = await getDocs(docRef);
+      const tempoVAR = docSnap.data();
+      
+      return(
+        <table border="1">
+        <tr colspan="2">Ajout d'une voiture dans le catalogue</tr>
+        <br/>
+        <tr>
+          <td>Modèle de la voiture</td>
+          <td><input type="text" id="ModelVoiture" value={tempoVAR.Brand}></input></td>
+        </tr>
+        <tr>
+          <td>Type d'essence</td>
+          <td><input type="text" id="EssenceVoiture" value={tempoVAR.Model}></input></td>
+        </tr>
+        <tr>
+          <td>Marque de la voiture</td>
+          <td><input type="text" id="MarqueVoiture" value={tempoVAR.Brand}></input></td>
+        </tr>
+        <tr>
+          <td>Plaque d'immatriculation</td>
+          <td><input type="text" id="Immatriculation" value={tempoVAR.Brand}></input></td>
+        </tr>
+        <tr>
+          <td> Prix de vente (€)</td>
+          <td><input type="number" id="PrixVente" value={tempoVAR.Brand}></input></td>
+        </tr>
+        <tr>
+          <td> Puissance </td>
+          <td><input type="text" id="Puissance" value={tempoVAR.Brand}></input></td>
+        </tr>
+    
+        <button onClick={database}> Enregistrer voiture</button>
+    
+        </table>
+      );
      
-
    
   }
 
@@ -145,7 +189,7 @@ function Liste_voiture(){
               <li>{car.HP}</li>
             </td>
             <td>
-              <button onClick={EditVoiture(cars)}>Edit</button>
+              <button onClick={() => EditVoiture(car.id)}>Edit</button>
             </td>
 
           </tr>
