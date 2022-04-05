@@ -43,11 +43,11 @@ function CreationVoiture(){
     </tr>
     <tr>
       <td> Prix de vente (€)</td>
-      <td><input type="text" id="PrixVente"></input></td>
+      <td><input type="number" id="PrixVente"></input></td>
     </tr>
     <tr>
       <td> Puissance </td>
-      <td><input type="text" id="Puisance"></input></td>
+      <td><input type="text" id="Puissance"></input></td>
     </tr>
 
     <button onClick={database}> Enregistrer voiture</button>
@@ -70,16 +70,18 @@ async function database(){
   const PUSH = await addDoc(collection(db,'Cars'), {
     Brand: MarqueVoiture,
     Model: Model_voiture,
-    Plate: Immatriculation,
+    PlateNumber: Immatriculation,
     Fuel: EssenceVoiture,
     Price: PrixVente,
-    Power: Puissance,
+    HP: Puissance,
   });
-  //.then(() => {
-    //console.log('User added!');
-  //});
-
-
+//Je retire les données dans les inputs
+  document.getElementById('ModelVoiture').value = "";
+  document.getElementById('EssenceVoiture').value = "";
+  document.getElementById('MarqueVoiture').value = "";
+  document.getElementById('Immatriculation').value = "";
+  document.getElementById('PrixVente').value = "";
+  document.getElementById('Puissance').value = "";
 
 }
 
@@ -92,7 +94,6 @@ function Liste_voiture(){
       const querySnapshot = await getDocs(collection(db, "Cars"));
       querySnapshot.forEach((doc) => {
         console.log(doc.id, " => ", doc.data());
-
       });
       setCars(querySnapshot.docs.map(doc => doc.data()))
     }
@@ -116,9 +117,6 @@ function Liste_voiture(){
  );
 
 } 
-
-
-
 
 function App() {
 const [user, setUser] = useState(null)
