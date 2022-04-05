@@ -4,7 +4,7 @@ import { GoogleAuthProvider, getAuth, signInWithRedirect, onAuthStateChanged, si
 import {Container, Col, Row, Button, Navbar, NavbarBrand, NavbarToggler, Collapse, Nav, NavItem, NavLink} from "reactstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from 'react';
-import {Route, Routes, Link} from "react-router-dom"
+import {Route, Routes, Link, useParams} from "react-router-dom"
 import { collection, doc, Firestore, getDocs, getFirestore, setDoc } from "firebase/firestore";
 
 
@@ -12,22 +12,7 @@ const provider = new GoogleAuthProvider();
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-function AddUser(){
-  useEffect(() => {
-    async function postUser(){
-      const querySnapshot = await setDoc(collection(db, "Users"), {
-        Name: document.getElementById("username").value,
-        Firstname: document.getElementById("firstname").value,
-        Birthdate: document.getElementById("birthdate").value,
-        Adress: document.getElementById("adress").value,
-        Phonenumber: document.getElementById("phonenumber").value,
-        Licencenumber: document.getElementById("licencenumber").value
-      });
-    }
-    postUser()
-  })
-  
-}
+
 
 function Profil(){
   const [Profils, setProfils] = useState([])
@@ -80,7 +65,7 @@ function Profil(){
             bonjour
           </td>
           <td>
-            <Button onClick={Settings()}>Edit</Button>
+            <Button>Edit</Button>
           </td>
           {/* <td>
             <li>{user.SubscriptionDate}</li>
@@ -98,6 +83,9 @@ function Profil(){
 function Home(){
   return <div>Home</div>
 }
+
+
+
 function Cars(){
   const [cars, setCars] = useState([])
   useEffect(() => {
@@ -153,12 +141,37 @@ function Cars(){
   </table>
 }
 
-function Settings(){
+function Settings(props){
+
+  const uid = useParams().uid ?? props.user.uid
+  const [name, setName] = useState("")
+  const [firstName, setfirstName] = useState("")
+  const [birthDate, setBirthDate] = useState("")
+  const [Adress, setAdress] = useState("")
+  const [Phone, setPhone] = useState("")
+  const [Licence, setLicence] = useState("")
+
+  async function addUser(user){
+
+    const querySnapshot = await setDoc(doc(db, "Users", uid), {
+      Name: name,
+      Firstname: firstName,
+      Birthdate: birthDate,
+      Adress: Adress,
+      Phonenumber: Phone,
+      Licencenumber: Licence
+    });
+      
+  }
   return (
     <table id="tableSetting">
       <tr>
+      <td>UID :{uid}</td>
+      <td><input type="text" id="name" value={name} onChange={e=> setName(e.target.value)} /></td>
+      </tr>
+      <tr>
       <td>Name :</td>
-      <td><input type="text" id="name" /></td>
+      <td><input type="text" id="name" value={name} onChange={e=> setName(e.target.value)} /></td>
       </tr>
       <tr>
       <td>First name :</td>
@@ -180,7 +193,7 @@ function Settings(){
       <td>Licence number :</td>
       <td><input type="text" id="licencenumber" /></td>
       </tr>
-      <Button onClick={AddUser}>Valider</Button>      
+      <Button onClick={addUser}>Valider</Button>      
     </table>
   )
 }
@@ -190,9 +203,6 @@ function App() {
 const [user, setUser] = useState([])
 
 /******************************** api get firebase ==> plusieurs useEffect possible ? ******************************************/ 
-
-
-
 
 console.log("Test", user)
 useEffect(() => onAuthStateChanged(auth, (newUser) => {
@@ -254,8 +264,12 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
             <Routes>
               <Route path="/" element={<Home />}/>
               <Route path="Voitures" element={<Cars />}/>
-              <Route path="Settings" element={<Settings />}/>
-              <Route path="Profil" element={<Profil />}/>
+              <Route path="Settings" element={<Settings user={user} />}>
+                <Route path=":uid" element={<Settings/>}/>
+              </Route>
+              <Route path="Profil" element={<Profil/>}>
+                
+              </Route>
             </Routes>
           </Col>
         </Row>
