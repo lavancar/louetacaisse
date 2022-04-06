@@ -5,14 +5,12 @@ import {Container, Col, Row, Button, Navbar, NavbarBrand, NavbarToggler, Collaps
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from 'react';
 import {Route, Routes, Link, useParams} from "react-router-dom"
-import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc } from "firebase/firestore";
+import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc, addDoc } from "firebase/firestore";
 
 
 const provider = new GoogleAuthProvider();
 const auth = getAuth(app);
 const db = getFirestore(app);
-
-
 
 function Profil(props){
   console.log("props = " ,props)
@@ -76,6 +74,32 @@ function EditUser(props){
   const [Phone, setPhone] = useState("")
   const [Licence, setLicence] = useState("")
   const [ProfilPicture, setPicture] = useState("")
+  const [users, setUsers] = useState()
+
+  useEffect(() => {
+    async function getProfil(){
+      
+      const docRef = doc(db, "Users", props.user.uid);
+      console.log("hello")
+      const querySnapshot = await getDoc(docRef);
+      console.log("query = ")
+      console.log(querySnapshot.data())
+      setUsers(querySnapshot.data())
+      if (querySnapshot.exists()){
+        setName(querySnapshot.data().Name)
+        setfirstName(querySnapshot.data().Firstname)
+        setAdress(querySnapshot.data().Adress)
+        setPhone(querySnapshot.data().Phonenumber)
+        setLicence(querySnapshot.data().Licencenumber)
+        setPicture(querySnapshot.data().ProfilPicture)
+        // setBirthDate(querySnapshot.data().birthDate)
+      }
+    }
+    getProfil()
+    
+  }, [props])
+
+ 
 
   async function addUser(user){
 
@@ -88,10 +112,12 @@ function EditUser(props){
       Licencenumber: Licence,
       ProfilPicture: ProfilPicture,
     });
-      
+    
   }
   return (
     <table id="tableSetting">
+      {props.user && 
+      <>
       <tr>
       <td>Name :</td>
       <td><input type="text" id="name" value={name} onChange={e=> setName(e.target.value)} /></td>
@@ -121,7 +147,10 @@ function EditUser(props){
       <td><input type="text" id="ProfilPicture" value={ProfilPicture} onChange={e=> setPicture(e.target.value)}/></td>
       </tr>
       <Button><Link to={`/Profil/${props.user.uid}`}>Back</Link></Button>
-      <Button onClick={addUser}>Valider</Button>      
+      <Button onClick={addUser}>Valider</Button>
+      </>
+      }
+            
     </table>
   )
 }
@@ -157,7 +186,7 @@ function Cars(){
         <td>Fuel</td>
         <td>Price</td>
         <td>Power</td>
-        <td></td>
+        <td><Button><Link to={`/AddCar`}>ADD</Link></Button></td>
     </thead>
     <tbody>
       {cars.map((car) => {
@@ -194,6 +223,82 @@ function Cars(){
   </table>
 }
 
+//Génère la page pour ajouter des voitures
+function AddCar(){
+
+
+
+  return (<div id="div_CreationVoiture" >
+  <table border="1">
+    <tr colspan="2">Ajout d'une voiture dans le catalogue</tr>
+    <br/>
+    <tr
+    >
+      <td>Modèle de la voiture</td>
+      <td><input type="text" id="ModelVoiture"></input></td>
+    </tr>
+    <tr>
+      <td>Type d'essence</td>
+      <td><input type="text" id="EssenceVoiture"></input></td>
+    </tr>
+    <tr>
+      <td>Marque de la voiture</td>
+      <td><input type="text" id="MarqueVoiture"></input></td>
+    </tr>
+    <tr>
+      <td>Plaque d'immatriculation</td>
+      <td><input type="text" id="Immatriculation"></input></td>
+    </tr>
+    <tr>
+      <td> Prix de vente (€)</td>
+      <td><input type="number" id="PrixVente"></input></td>
+    </tr>
+    <tr>
+      <td> Puissance </td>
+      <td><input type="text" id="Puissance"></input></td>
+    </tr>
+
+    <button onClick={PutCar}> Enregistrer voiture</button>
+
+  </table>
+
+
+  </div>
+  )
+}
+//Fct pour ajouter des voitures 
+async function PutCar(){
+  
+  // const [Adress, setAdress] = useState("")
+
+  var Model_voiture = document.getElementById('ModelVoiture').value;
+  var EssenceVoiture = document.getElementById('EssenceVoiture').value;
+  var MarqueVoiture = document.getElementById('MarqueVoiture').value;
+  var Immatriculation = document.getElementById('Immatriculation').value;
+  var PrixVente = document.getElementById('PrixVente').value;
+  var Puissance = document.getElementById('Puissance').value;
+  //addDoc => remplir la base
+  const PUSH = await addDoc(collection(db,'Cars'), {
+    Brand: MarqueVoiture,
+    Model: Model_voiture,
+    PlateNumber: Immatriculation,
+    Fuel: EssenceVoiture,
+    Price: PrixVente,
+    HP: Puissance,
+  });
+  //Je retire les données écrites dans les inputs
+  document.getElementById('ModelVoiture').value = "";
+  document.getElementById('EssenceVoiture').value = "";
+  document.getElementById('MarqueVoiture').value = "";
+  document.getElementById('Immatriculation').value = "";
+  document.getElementById('PrixVente').value = "";
+  document.getElementById('Puissance').value = "";
+
+}
+
+
+
+
 
 function App() {
 const [user, setUser] = useState(null)
@@ -214,21 +319,13 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
 
   return (
       <Container>
-        <Navbar
-          color="light"
-          expand="md"
-          light>
+        <Navbar color="light" expand="md" light>
         <NavbarBrand href="/">
-        <img
-          width={"30%"}
-          src="loutacaisse.png" />
+          <img width={"30%"} src="loutacaisse.png" />
         </NavbarBrand>
         <NavbarToggler onClick={function noRefCheck() { }}/>
         <Collapse navbar>
-          <Nav
-            className="me-auto"
-            navbar
-          >
+          <Nav className="me-auto" navbar >
             <NavItem>
               <NavLink to="/" tag={Link}>
                 Home
@@ -252,6 +349,7 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
           />
               </NavLink>
             </NavItem>
+            
           </Nav>
           <Button onClick={user ? () => signOut(auth) : () => signInWithRedirect(auth, provider)}>{user ? user.email : "Login"}</Button>
         </Collapse>
@@ -261,14 +359,17 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
             <Routes>
               <Route path="/" element={<Home />}/>
               <Route path="Voitures" element={<Cars />}/>
-              <Route path="Profil" element={<Profil user={user} />}>
-                <Route path=":uid" element={<Profil/>}>
-                </Route>
-                
-              </Route>
               <Route path="Update" element={<EditUser  user={user}/>}>
                     <Route path=":uid" element={<EditUser  user={user}/>}/>
                   </Route>
+              {/* <Route path="products" element={<Products />}/> */}
+              <Route path="AddCar" element={<AddCar />}/>
+              {/* <Route path="Liste_voiture" element={<Liste_voiture />}/> */}
+
+              <Route path="Profil" element={<Profil user={user} />}>
+                <Route path=":uid" element={<Profil/>}/>
+              </Route>
+
             </Routes>
           </Col>
         </Row>
