@@ -75,6 +75,7 @@ function EditUser(props){
   const [Adress, setAdress] = useState("")
   const [Phone, setPhone] = useState("")
   const [Licence, setLicence] = useState("")
+  const [ProfilPicture, setPicture] = useState("")
 
   async function addUser(user){
 
@@ -84,7 +85,8 @@ function EditUser(props){
       Birthdate: birthDate,
       Adress: Adress,
       Phonenumber: Phone,
-      Licencenumber: Licence
+      Licencenumber: Licence,
+      ProfilPicture: ProfilPicture,
     });
       
   }
@@ -113,6 +115,10 @@ function EditUser(props){
       <tr>
       <td>Licence number :</td>
       <td><input type="number" id="licencenumber" value={Licence} onChange={e=> setLicence(e.target.value)}/></td>
+      </tr>
+      <tr>
+      <td>Profil Picture :</td>
+      <td><input type="text" id="ProfilPicture" value={ProfilPicture} onChange={e=> setPicture(e.target.value)}/></td>
       </tr>
       <Button><Link to={`/Profil/${props.user.uid}`}>Back</Link></Button>
       <Button onClick={addUser}>Valider</Button>      
@@ -241,8 +247,9 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
             <NavItem>
               <NavLink to="/Settings" tag={Link}>
               <img
-          width={"30%"}
-          src="gear.png" />
+          width={"20%"}
+          src="gear.png" 
+          />
               </NavLink>
             </NavItem>
           </Nav>
