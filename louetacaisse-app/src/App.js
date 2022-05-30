@@ -5,12 +5,195 @@ import {Container, Col, Row, Button, Navbar, NavbarBrand, NavbarToggler, Collaps
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from 'react';
 import {Route, Routes, Link, useParams} from "react-router-dom"
-import { addDoc, collection, doc, Firestore, getDocs, getFirestore, setDoc} from "firebase/firestore";
+import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc, addDoc } from "firebase/firestore";
+import { getUA } from "@firebase/util";
 
 
 const provider = new GoogleAuthProvider();
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+let newName;
+
+function Profil(props){
+  console.log("props = " ,props)
+  const [Profil, setProfils] = useState({})
+  useEffect(async () => {
+    async function getProfil(){
+      if(! props.user) {
+        return 
+      }
+      const docRef = doc(db, "Users", props.user.uid);
+      const querySnapshot = await getDoc(docRef);
+      console.log("query = ")
+      console.log(querySnapshot.data())
+      setProfils(querySnapshot.data())
+    }
+    getProfil()
+
+    newName = await checkInfos(Profil.Name)
+  }, [props.user])
+  
+  return <table id="userTable">
+    <tbody>
+      <tr>
+        <td>UID : </td>
+        <td>{props.user?.uid ?? ''}</td>
+      </tr>
+      <tr>
+        <td>Name : </td>
+        /<td>{Profil.Name ?? ''}</td>
+      </tr>
+      <tr>
+        <td>First Name : </td>
+        <td>{Profil.Firstname ?? ''}</td>
+      </tr>
+      <tr>
+        <td>Phone Number : </td>
+        <td>{Profil.Phonenumber ?? ''}</td>
+      </tr>
+      <tr>
+        <td>Email : </td>
+        <td>{props.user?.email ?? ''}</td>
+      </tr>
+      <tr>
+        <td>Licence Number : </td>
+        <td>{Profil.Licencenumber ?? ''}</td>
+      </tr>
+    </tbody>
+    <Button><Link to={`/Update/${props.user?.uid}`}>UPDATE</Link></Button>
+
+  </table>
+  
+}
+
+async function checkInfos(value){
+
+   async function GetUser(){
+    const path = window.location.href
+    const uid = path.split('/').pop()
+    const docRef = doc(db, "Users", uid);
+    console.log(uid)
+    const querySnapshot = await getDoc(docRef);
+    console.log("query = ")
+
+    return querySnapshot.data() === undefined
+   }
+
+   if(await GetUser() === true){
+     const path = window.location.href
+     const uid = path.split('/').pop()
+     const querySnapshot = setDoc(doc(db, "Users", uid), {
+      Name: "",
+      Firstname: "",
+      Birthdate: "",
+      Adress: "",
+      Phonenumber: "",
+      Licencenumber: "",
+      ProfilPicture: "",
+    });
+    value = "";
+   }
+  else{
+    var result = value
+  }
+  console.log("ma value est : " + value);
+  return value
+}
+
+function EditUser(props){
+
+  const uid = useParams().uid ?? props.user.uid
+  const [name, setName] = useState("")
+  const [firstName, setfirstName] = useState("")
+  const [birthDate, setBirthDate] = useState("")
+  const [Adress, setAdress] = useState("")
+  const [Phone, setPhone] = useState("")
+  const [Licence, setLicence] = useState("")
+  const [ProfilPicture, setPicture] = useState("")
+  const [users, setUsers] = useState()
+
+  useEffect(() => {
+    async function getProfil(){
+      
+      const docRef = doc(db, "Users", props.user.uid);
+      console.log("hello")
+      const querySnapshot = await getDoc(docRef);
+      console.log("query = ")
+      console.log(querySnapshot.data())
+      setUsers(querySnapshot.data())
+      if (querySnapshot.exists()){
+        setName(querySnapshot.data().Name)
+        setfirstName(querySnapshot.data().Firstname)
+        setAdress(querySnapshot.data().Adress)
+        setPhone(querySnapshot.data().Phonenumber)
+        setLicence(querySnapshot.data().Licencenumber)
+        setPicture(querySnapshot.data().ProfilPicture)
+        // setBirthDate(querySnapshot.data().birthDate)
+      }
+    }
+    getProfil()
+    
+  }, [props])
+
+ 
+
+  async function addUser(user){
+
+    const querySnapshot = await setDoc(doc(db, "Users", uid), {
+      Name: name,
+      Firstname: firstName,
+      Birthdate: birthDate,
+      Adress: Adress,
+      Phonenumber: Phone,
+      Licencenumber: Licence,
+      ProfilPicture: ProfilPicture,
+    });
+    
+  }
+  return (
+    <table id="tableSetting">
+      {props.user && 
+      <>
+      <tr>
+      <td>Name :</td>
+      <td><input type="text" id="name" value={name} onChange={e=> setName(e.target.value)} /></td>
+      </tr>
+      <tr>
+      <td>First name :</td>
+      <td><input type="text" id="firstname" value={firstName} onChange={e=> setfirstName(e.target.value)}/></td>
+      </tr>
+      <tr>
+      <td>Birth date :</td>
+      <td><input type="date" id="birthdate"  onChange={e=> setBirthDate(e.target.value)}/></td>
+      </tr>
+      <tr>
+      <td>Adress :</td>
+      <td><input type="text" id="adress" value={Adress} onChange={e=> setAdress(e.target.value)}/></td>
+      </tr>
+      <tr>
+      <td>Phone number :</td>
+      <td><input type="number" id="phonenumber" value={Phone} onChange={e=> setPhone(e.target.value)}/></td>
+      </tr>
+      <tr>
+      <td>Licence number :</td>
+      <td><input type="number" id="licencenumber" value={Licence} onChange={e=> setLicence(e.target.value)}/></td>
+      </tr>
+      <tr>
+      <td>Profil Picture :</td>
+      <td><input type="text" id="ProfilPicture" value={ProfilPicture} onChange={e=> setPicture(e.target.value)}/></td>
+      </tr>
+      <Button><Link to={`/Profil/${props.user.uid}`}>Back</Link></Button>
+      <Button onClick={addUser}>Valider</Button>
+      </>
+      }
+            
+    </table>
+  )
+}
+
+
+
 
 function Home(){
   return <div>Home</div>
@@ -351,7 +534,7 @@ const [user, setUser] = useState(null)
 
 /******************************** api get firebase ==> plusieurs useEffect possible ? ******************************************/ 
 
-console.log("Test", user)
+
 useEffect(() => onAuthStateChanged(auth, (newUser) => {
   console.log("auth",newUser)
   if (newUser){
