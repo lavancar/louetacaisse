@@ -18,10 +18,9 @@ function Profil(props){
   useEffect(() => {
     async function getProfil(){
       if(! props.user) {
-        return 
+        return
       }
       const docRef = doc(db, "Users", props.user.uid);
-      console.log("hello")
       const querySnapshot = await getDoc(docRef);
       console.log("query = ")
       console.log(querySnapshot.data())
@@ -30,7 +29,8 @@ function Profil(props){
     getProfil()
   }, [props.user])
 
-  return <table id="userTable">
+  return (
+  <table id="userTable">
     <tbody>
       <tr>
         <td>UID : </td>
@@ -38,7 +38,8 @@ function Profil(props){
       </tr>
       <tr>
         <td>Name : </td>
-        <td>{Profil.Name ?? ''}</td>
+        <td>{checkInfos(Profil.Name)}</td>
+        {/* <td>{Profil.Name ?? ''}</td> */}
       </tr>
       <tr>
         <td>First Name : </td>
@@ -60,8 +61,28 @@ function Profil(props){
     <Button><Link to={`/Update/${props.user?.uid}`}>UPDATE</Link></Button>
 
   </table>
-  
+  )
+
 }
+
+function checkInfos(value){
+  console.log(value)
+  const path = window.location.href
+  console.log(path)
+  const uid = path.split('/').pop()
+  console.log(uid)
+  // value = value.Name
+  if(value === undefined){
+    console.log("if")
+
+  }
+  else{
+    console.log("else")
+    var result = value
+  }
+  return value
+}
+
 
 
 function EditUser(props){
@@ -78,9 +99,8 @@ function EditUser(props){
 
   useEffect(() => {
     async function getProfil(){
-      
+
       const docRef = doc(db, "Users", props.user.uid);
-      console.log("hello")
       const querySnapshot = await getDoc(docRef);
       console.log("query = ")
       console.log(querySnapshot.data())
@@ -96,10 +116,10 @@ function EditUser(props){
       }
     }
     getProfil()
-    
+
   }, [props])
 
- 
+
 
   async function addUser(user){
 
@@ -112,11 +132,14 @@ function EditUser(props){
       Licencenumber: Licence,
       ProfilPicture: ProfilPicture,
     });
-    
+    alert("The profil has corectly been updated !");
+    <Link to={`/Profil/${props.user.uid}`}></Link>
+
+
   }
   return (
     <table id="tableSetting">
-      {props.user && 
+      {props.user &&
       <>
       <tr>
       <td>Name :</td>
@@ -150,7 +173,7 @@ function EditUser(props){
       <Button onClick={addUser}>Valider</Button>
       </>
       }
-            
+
     </table>
   )
 }
@@ -216,9 +239,9 @@ function Cars(){
             </td>
           </tr>
         )
-        
+
       }) }
-      
+
     </tbody>
   </table>
 }
@@ -266,9 +289,9 @@ function AddCar(){
   </div>
   )
 }
-//Fct pour ajouter des voitures 
+//Fct pour ajouter des voitures
 async function PutCar(){
-  
+
   // const [Adress, setAdress] = useState("")
 
   var Model_voiture = document.getElementById('ModelVoiture').value;
@@ -303,7 +326,7 @@ async function PutCar(){
 function App() {
 const [user, setUser] = useState(null)
 
-/******************************** api get firebase ==> plusieurs useEffect possible ? ******************************************/ 
+/******************************** api get firebase ==> plusieurs useEffect possible ? ******************************************/
 
 console.log("Test", user)
 useEffect(() => onAuthStateChanged(auth, (newUser) => {
@@ -345,11 +368,11 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
               <NavLink to="/Settings" tag={Link}>
               <img
           width={"20%"}
-          src="gear.png" 
+          src="gear.png"
           />
               </NavLink>
             </NavItem>
-            
+
           </Nav>
           <Button onClick={user ? () => signOut(auth) : () => signInWithRedirect(auth, provider)}>{user ? user.email : "Login"}</Button>
         </Collapse>
