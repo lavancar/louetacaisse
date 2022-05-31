@@ -5,7 +5,7 @@ import {Container, Col, Row, Button, Navbar, NavbarBrand, NavbarToggler, Collaps
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from 'react';
 import {Route, Routes, Link, useParams} from "react-router-dom"
-import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc, addDoc } from "firebase/firestore";
+import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc, addDoc, updateDoc } from "firebase/firestore";
 
 
 const provider = new GoogleAuthProvider();
@@ -159,7 +159,7 @@ function EditUser(props){
 
   async function addUser(user){
 
-    const querySnapshot = await setDoc(doc(db, "Users", uid), {
+    const querySnapshot = await updateDoc(doc(db, "Users", uid), {
       Name: name,
       Firstname: firstName,
       Birthdate: birthDate,
@@ -167,9 +167,9 @@ function EditUser(props){
       Phonenumber: Phone,
       Licencenumber: Licence,
       ProfilPicture: ProfilPicture,
+      
     });
     alert("The profil has corectly been updated !");
-    // <Link to={`/Profil/${props.user.uid}`}></Link>
     window.location.href = "/Profil/"+uid
 
   }
@@ -223,17 +223,25 @@ function Home(){
 
 
 
-function Cars(user){
+function Cars(props){
   const [cars, setCars] = useState([])
+  const [role, setRole] = useState("user")
+
   useEffect(() => {
-    async function getCars(user){
-      user = user.user
+    async function getCars(){
+      const user = props.user
+      if(!user ){
+        setRole("user")
+        return
+      }
+      console.log(user)
       console.log(user)
       console.log(user.uid)
       const docRef = doc(db, "Users", user.uid)
       const docSnap = await getDoc(docRef)
-      const role = docSnap.data().role
-      console.log(role)
+      const newRole = docSnap.data().Role
+      console.log(newRole)
+      setRole(newRole)
       const querySnapshot = await getDocs(collection(db, "Cars"));
       querySnapshot.forEach((car) => {
         // doc.data() is never undefined for query doc snapshots
@@ -242,9 +250,9 @@ function Cars(user){
       });
       setCars(querySnapshot.docs.map(car => car.data()))
     }
-    getCars(user)
+    getCars()
     
-  }, [])
+  }, [props.user])
   
 
   return (
@@ -259,7 +267,12 @@ function Cars(user){
           <td>Fuel</td>
           <td>Price</td>
           <td>Power</td>
-          <td><Button><Link to={`/AddCar`}>ADD</Link></Button></td>
+          {role === "admin" ?
+              <td><Button><Link to={`/AddCar`}>ADD</Link></Button></td>
+                  :
+                <td></td>
+                }
+
       </thead>
       <tbody>
         {cars.map((car) => {
@@ -285,7 +298,12 @@ function Cars(user){
                 <li>{car.HP}</li>
               </td>
               <td>
-                <li><Button>UPDATE</Button></li>
+                {role === "admin" ?
+                  <li><Button>UPDATE</Button></li>
+                  :
+                  <li><Button>RENT</Button></li>
+                }
+
               </td>
             </tr>
           )
@@ -387,7 +405,6 @@ console.log("Test", user)
 useEffect(() => onAuthStateChanged(auth, (newUser) => {
 
   console.log("auth",newUser)
-  console.log(newUser.uid)
   if (newUser){
     console.log(newUser.uid, newUser.email)
     setUser({uid: newUser.uid, email: newUser.email})
