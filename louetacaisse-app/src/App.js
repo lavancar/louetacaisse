@@ -17,79 +17,144 @@ let newName;
 function Profil(props){
   console.log("props = " ,props)
   const [Profil, setProfils] = useState({})
+  const [users, setUsers] = useState([])
   useEffect(async () => {
     async function getProfil(){
       if(! props.user) {
         return
       }
+
+      const query = await getDocs(collection(db, "Users"));
+      query.forEach((user) => {
+      // doc.data() is never undefined for query doc snapshots
+        console.log(user.id, " => ", user.data());
+      })
+
       const docRef = doc(db, "Users", props.user.uid);
       const querySnapshot = await getDoc(docRef);
       console.log("query = ")
       console.log(querySnapshot.data())
       setProfils(querySnapshot.data())
+      setUsers(query.docs.map(user => ({id:user.id, ...user.data()})))
     }
+
     newName = await checkInfos(Profil.Name)
     getProfil()
   }, [props.user])
 
   return (
-  <table id="userTable">
-    <tbody>
-      <tr>
-        <td>UID : </td>
-        <td>{props.user?.uid ?? ''}</td>
-      </tr>
-      <tr>
-        <td>Name : </td>
-        { <td>{Profil.Name ?? ''}</td> }
-      </tr>
-      <tr>
-        <td>First Name : </td>
-        <td>{Profil.Firstname ?? ''}</td>
-      </tr>
-      <tr>
-        <td>Phone Number : </td>
-        <td>{Profil.Phonenumber ?? ''}</td>
-      </tr>
-      <tr>
-        <td>Email : </td>
-        <td>{props.user?.email ?? ''}</td>
-      </tr>
-      <tr>
-        <td>Licence Number : </td>
-        <td>{Profil.Licencenumber ?? ''}</td>
-      </tr>
-      <tr>
-        <td>Role : </td>
-        <td>{Profil.role}</td>
-      </tr>
-      <tr>
-        <td>{checkAdmin(Profil)}</td>
-      </tr>
-    </tbody>
-    <Button><Link to={`/Update/${props.user?.uid}`}>UPDATE</Link></Button>
+    <div>
+      {console.log(Profil.Role)}
+      {Profil.Role === "admin" ?
+        // ListUsers()
+        <table>
+          <thead>
+            <td>Name</td>
+            <td>FirstName</td>
+            <td>Phone Number</td>
+            <td>Licence Number</td>
+            <td>Role</td>
+            <td></td>
+          </thead>
+          <tbody>
+            {users.map((user) => {
+              return (
+                <tr>
+                {console.log(user.id, " => ", user)} 
+                <td>
+                  <li>{user.Name}</li>
+                </td>
+                <td>
+                  <li>{user.Firstname}</li>
+                </td>
+                <td>
+                  <li>{user.Phonenumber}</li>
+                </td>
+                <td>
+                  <li>{user.Licencenumber}</li>
+                </td>
+                <td>
+                  <li>{user.Role}</li>
+                </td>
+                <td>
+                <Button><Link to={`/Update/${user.id}`}>UPDATE</Link></Button>
+                </td>
+              </tr>
+              )
+              
+            }) }
+          </tbody>
+        </table>
+        :
+        <table id="userTable">
+          <tbody>
+            <tr>
+              <td>UID : </td>
+              <td>{props.user?.uid ?? ''}</td>
+            </tr>
+            <tr>
+              <td>Name : </td>
+              { <td>{Profil.Name ?? ''}</td> }
+            </tr>
+            <tr>
+              <td>First Name : </td>
+              <td>{Profil.Firstname ?? ''}</td>
+            </tr>
+            <tr>
+              <td>Phone Number : </td>
+              <td>{Profil.Phonenumber ?? ''}</td>
+            </tr>
+            <tr>
+              <td>Email : </td>
+              <td>{props.user?.email ?? ''}</td>
+            </tr>
+            <tr>
+              <td>Licence Number : </td>
+              <td>{Profil.Licencenumber ?? ''}</td>
+            </tr>
+            <tr>
+              <td>Role : </td>
+              <td>{Profil.Role}</td>
+            </tr>
+          </tbody>
+          <Button><Link to={`/Update/${Profil.uid}`}>UPDATE</Link></Button>
 
-  </table>
+        </table>
+      }
+    </div>
+    
+  
   )
 
 }
 
+// function ListUsers(props){
+  
+//   const [user, setUsers] = useState([])
+//   useEffect(async () => {
+//     async function getUserList(){
+//     const querySnapshot = await getDocs(collection(db, "Users"));
+//     querySnapshot.forEach((user) => {
+//       // doc.data() is never undefined for query doc snapshots
+//       console.log(user.id, " => ", user.data());
+//     });
+//     setUsers(querySnapshot.docs.map(user => user.data()))
+//   }
+//   getUserList()
+//   }, [props.user])
 
-function checkAdmin(profil){
-  console.log(profil)
-  if(profil.role == "admin"){
-    return(
-      <button>click me</button>
-    )
-  }
-}
+//   return(
+//   <p></p>
+//   )
+
+// }
 
 async function checkInfos(value){
 
   async function GetUser(){
    const path = window.location.href
    const uid = path.split('/').pop()
-   const docRef = doc(db, "Users", uid);
+   const docRef = doc(db, "Users", uid);  
    console.log(uid)
    const querySnapshot = await getDoc(docRef);
    console.log("query = ")
@@ -125,6 +190,7 @@ function EditUser(props){
   const [Licence, setLicence] = useState("")
   const [ProfilPicture, setPicture] = useState("")
   const [users, setUsers] = useState()
+  const [Role, setRole] = useState("")
 
   useEffect(() => {
     async function getProfil(){
@@ -141,6 +207,7 @@ function EditUser(props){
         setPhone(querySnapshot.data().Phonenumber)
         setLicence(querySnapshot.data().Licencenumber)
         setPicture(querySnapshot.data().ProfilPicture)
+        setRole(querySnapshot.data().Role)
         // setBirthDate(querySnapshot.data().birthDate)
       }
     }
@@ -151,6 +218,7 @@ function EditUser(props){
 
 
   async function addUser(user){
+    console.log(user)
 
     const querySnapshot = await updateDoc(doc(db, "Users", uid), {
       Name: name,
@@ -160,7 +228,7 @@ function EditUser(props){
       Phonenumber: Phone,
       Licencenumber: Licence,
       ProfilPicture: ProfilPicture,
-      
+      Role: Role
     });
     alert("The profil has corectly been updated !");
     window.location.href = "/Profil/"+uid
@@ -198,6 +266,18 @@ function EditUser(props){
       <td>Profil Picture :</td>
       <td><input type="text" id="ProfilPicture" value={ProfilPicture} onChange={e=> setPicture(e.target.value)}/></td>
       </tr>
+      {Role === "admin" ? 
+      <tr>
+        <td>Role :</td>
+        <td><input type="text" id="role" value={Role} onChange={e=> setRole(e.target.value)}/></td>       
+      </tr>
+      : 
+      <tr>
+        <td>Role :</td>
+        <td>{Role}</td>
+      </tr>      
+      }
+
       <Button><Link to={`/Profil/${props.user.uid}`}>Back</Link></Button>
       <Button onClick={addUser}>Valider</Button>
       </>
@@ -247,6 +327,7 @@ function Cars(props){
     
   }, [props.user])
   
+
 
   return (
   <div>
