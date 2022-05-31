@@ -29,9 +29,9 @@ function Profil(props){
       console.log(querySnapshot.data())
       setProfils(querySnapshot.data())
     }
-    getProfil()
-
+    
     newName = await checkInfos(Profil.Name)
+    getProfil()
   }, [props.user])
   
   return <table id="userTable">
@@ -42,7 +42,7 @@ function Profil(props){
       </tr>
       <tr>
         <td>Name : </td>
-        /<td>{Profil.Name ?? ''}</td>
+        <td>{Profil.Name ?? ''}</td>
       </tr>
       <tr>
         <td>First Name : </td>
@@ -95,7 +95,7 @@ async function checkInfos(value){
     value = "";
    }
   else{
-    var result = value
+    var value = "else"
   }
   console.log("ma value est : " + value);
   return value
@@ -192,14 +192,9 @@ function EditUser(props){
   )
 }
 
-
-
-
 function Home(){
   return <div>Home</div>
 }
-
-
 
 function Cars(){
   const [cars, setCars] = useState([])
