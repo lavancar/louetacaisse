@@ -12,10 +12,12 @@ const provider = new GoogleAuthProvider();
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+let newName;
+
 function Profil(props){
   console.log("props = " ,props)
   const [Profil, setProfils] = useState({})
-  useEffect(() => {
+  useEffect(async () => {
     async function getProfil(){
       if(! props.user) {
         return
@@ -26,6 +28,7 @@ function Profil(props){
       console.log(querySnapshot.data())
       setProfils(querySnapshot.data())
     }
+    newName = await checkInfos(Profil.Name)
     getProfil()
   }, [props.user])
 
@@ -38,8 +41,7 @@ function Profil(props){
       </tr>
       <tr>
         <td>Name : </td>
-        <td>{checkInfos(Profil.Name)}</td>
-        {/* <td>{Profil.Name ?? ''}</td> */}
+        { <td>{Profil.Name ?? ''}</td> }
       </tr>
       <tr>
         <td>First Name : </td>
@@ -72,6 +74,7 @@ function Profil(props){
 
 }
 
+
 function checkAdmin(profil){
   console.log(profil)
   if(profil.role == "admin"){
@@ -81,44 +84,34 @@ function checkAdmin(profil){
   }
 }
 
-function checkInfos(value){
-  console.log(value)
-  const path = window.location.href
-  console.log(path)
-  const uid = path.split('/').pop()
-  console.log(uid)
-  // value = value.Name
-  if(value === undefined){
-    console.log("if")
+async function checkInfos(value){
 
+  async function GetUser(){
+   const path = window.location.href
+   const uid = path.split('/').pop()
+   const docRef = doc(db, "Users", uid);
+   console.log(uid)
+   const querySnapshot = await getDoc(docRef);
+   console.log("query = ")
+
+   return querySnapshot.data() === undefined
   }
-  else{
-    console.log("else")
-    var result = value
+
+  if(await GetUser() === true){
+    const path = window.location.href
+    const uid = path.split('/').pop()
+    const querySnapshot = setDoc(doc(db, "Users", uid), {
+     Name: "",
+     Firstname: "",
+     Birthdate: "",
+     Adress: "",
+     Phonenumber: "",
+     Licencenumber: "",
+     ProfilPicture: "",
+   });
   }
-  return value
 }
 
-// async function checkInfos(value){
-//   console.log(value)
-//   if(value === undefined){
-//      const path = window.location.href
-//      const uid = path.split('/').pop()
-//      const querySnapshot = await setDoc(doc(db, "Users", uid), {
-//       Name: "",
-//       Firstname: "",
-//       Birthdate: "",
-//       Adress: "",
-//       Phonenumber: "",
-//       Licencenumber: "",
-//       ProfilPicture: "",
-//     });
-//    }
-//   else{
-//     var result = value
-//   }
-//   return value
-// }
 
 
 function EditUser(props){
