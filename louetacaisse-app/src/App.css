@@ -43,7 +43,6 @@ li{
 
 #carsTable, #userTable{
   border: 1px solid black;
-  margin-top: 5%;
   width: 90%;
   margin-left: 4%;
 }
@@ -58,5 +57,11 @@ thead{
 
 #tableSetting{
   margin-top: 5%;
+}
+
+#CarsPage{
+  margin-top: 2%;
+  margin-left: 5%;
+
 }
 }

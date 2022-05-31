@@ -5,8 +5,7 @@ import {Container, Col, Row, Button, Navbar, NavbarBrand, NavbarToggler, Collaps
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from 'react';
 import {Route, Routes, Link, useParams} from "react-router-dom"
-import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc, addDoc } from "firebase/firestore";
-import { getUA } from "@firebase/util";
+import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc, addDoc, updateDoc } from "firebase/firestore";
 
 
 const provider = new GoogleAuthProvider();
@@ -21,7 +20,7 @@ function Profil(props){
   useEffect(async () => {
     async function getProfil(){
       if(! props.user) {
-        return 
+        return
       }
       const docRef = doc(db, "Users", props.user.uid);
       const querySnapshot = await getDoc(docRef);
@@ -29,12 +28,12 @@ function Profil(props){
       console.log(querySnapshot.data())
       setProfils(querySnapshot.data())
     }
-    
     newName = await checkInfos(Profil.Name)
     getProfil()
   }, [props.user])
-  
-  return <table id="userTable">
+
+  return (
+  <table id="userTable">
     <tbody>
       <tr>
         <td>UID : </td>
@@ -42,7 +41,7 @@ function Profil(props){
       </tr>
       <tr>
         <td>Name : </td>
-        <td>{Profil.Name ?? ''}</td>
+        { <td>{Profil.Name ?? ''}</td> }
       </tr>
       <tr>
         <td>First Name : </td>
@@ -60,11 +59,19 @@ function Profil(props){
         <td>Licence Number : </td>
         <td>{Profil.Licencenumber ?? ''}</td>
       </tr>
+      <tr>
+        <td>Role : </td>
+        <td>{Profil.role}</td>
+      </tr>
+      <tr>
+        <td>{checkAdmin(Profil)}</td>
+      </tr>
     </tbody>
     <Button><Link to={`/Update/${props.user?.uid}`}>UPDATE</Link></Button>
 
   </table>
-  
+  )
+
 }
 
 async function checkInfos(value){
@@ -101,6 +108,45 @@ async function checkInfos(value){
   return value
 }
 
+function checkAdmin(profil){
+  console.log(profil)
+  if(profil.role == "admin"){
+    return(
+      <button>click me</button>
+    )
+  }
+}
+
+async function checkInfos(value){
+
+  async function GetUser(){
+   const path = window.location.href
+   const uid = path.split('/').pop()
+   const docRef = doc(db, "Users", uid);
+   console.log(uid)
+   const querySnapshot = await getDoc(docRef);
+   console.log("query = ")
+
+   return querySnapshot.data() === undefined
+  }
+
+  if(await GetUser() === true){
+    const path = window.location.href
+    const uid = path.split('/').pop()
+    const querySnapshot = setDoc(doc(db, "Users", uid), {
+     Name: "",
+     Firstname: "",
+     Birthdate: "",
+     Adress: "",
+     Phonenumber: "",
+     Licencenumber: "",
+     ProfilPicture: "",
+   });
+  }
+}
+
+
+
 function EditUser(props){
 
   const uid = useParams().uid ?? props.user.uid
@@ -115,9 +161,8 @@ function EditUser(props){
 
   useEffect(() => {
     async function getProfil(){
-      
+
       const docRef = doc(db, "Users", props.user.uid);
-      console.log("hello")
       const querySnapshot = await getDoc(docRef);
       console.log("query = ")
       console.log(querySnapshot.data())
@@ -133,14 +178,14 @@ function EditUser(props){
       }
     }
     getProfil()
-    
+
   }, [props])
 
- 
+
 
   async function addUser(user){
 
-    const querySnapshot = await setDoc(doc(db, "Users", uid), {
+    const querySnapshot = await updateDoc(doc(db, "Users", uid), {
       Name: name,
       Firstname: firstName,
       Birthdate: birthDate,
@@ -148,12 +193,15 @@ function EditUser(props){
       Phonenumber: Phone,
       Licencenumber: Licence,
       ProfilPicture: ProfilPicture,
+      
     });
-    
+    alert("The profil has corectly been updated !");
+    window.location.href = "/Profil/"+uid
+
   }
   return (
     <table id="tableSetting">
-      {props.user && 
+      {props.user &&
       <>
       <tr>
       <td>Name :</td>
@@ -187,7 +235,7 @@ function EditUser(props){
       <Button onClick={addUser}>Valider</Button>
       </>
       }
-            
+
     </table>
   )
 }
@@ -196,63 +244,102 @@ function Home(){
   return <div>Home</div>
 }
 
-function Cars(){
+
+
+function Cars(props){
   const [cars, setCars] = useState([])
+  const [role, setRole] = useState("user")
+
   useEffect(() => {
     async function getCars(){
+      const user = props.user
+      if(!user ){
+        setRole("user")
+        return
+      }
+      console.log(user)
+      console.log(user)
+      console.log(user.uid)
+      const docRef = doc(db, "Users", user.uid)
+      const docSnap = await getDoc(docRef)
+      const newRole = docSnap.data().Role
+      console.log(newRole)
+      setRole(newRole)
       const querySnapshot = await getDocs(collection(db, "Cars"));
       querySnapshot.forEach((car) => {
         // doc.data() is never undefined for query doc snapshots
         console.log(car.id, " => ", car.data());
+        return role
       });
       setCars(querySnapshot.docs.map(car => car.data()))
     }
     getCars()
-  }, [])
+    
+  }, [props.user])
+  
 
-  return <table id="carsTable">
-    <thead>
-        <td>Brand</td>
-        <td>Model</td>
-        <td>Plate</td>
-        <td>Fuel</td>
-        <td>Price</td>
-        <td>Power</td>
-        <td></td>
-    </thead>
-    <tbody>
-      {cars.map((car) => {
-        console.log(car);
-        return (
-          <tr>
-            <td>
-              <li>{car.Brand}</li>
-            </td>
-            <td>
-              <li>{car.Model}</li>
-            </td>
-            <td>
-              <li>{car.PlateNumber}</li>
-            </td>
-            <td>
-              <li>{car.Fuel}</li>
-            </td>
-            <td>
-              <li>{car.Price}</li>
-            </td>
-            <td>
-              <li>{car.HP}</li>
-            </td>
-            <td>
-              <li><Button>UPDATE</Button></li>
-            </td>
-          </tr>
-        )
-        
-      }) }
-      
-    </tbody>
-  </table>
+  return (
+  <div>
+    <input type="checkbox" id="CarsPage" onChange={() => availableCheck()}></input>
+    <label> Available Only</label>
+    <table id="carsTable">
+      <thead>
+          <td>Brand</td>
+          <td>Model</td>
+          <td>Plate</td>
+          <td>Fuel</td>
+          <td>Price</td>
+          <td>Power</td>
+          {role === "admin" ?
+              <td><Button><Link to={`/AddCar`}>ADD</Link></Button></td>
+                  :
+                <td></td>
+                }
+
+      </thead>
+      <tbody>
+        {cars.map((car) => {
+          console.log(car);
+          return (
+            <tr>
+              <td>
+                <li>{car.Brand}</li>
+              </td>
+              <td>
+                <li>{car.Model}</li>
+              </td>
+              <td>
+                <li>{car.PlateNumber}</li>
+              </td>
+              <td>
+                <li>{car.Fuel}</li>
+              </td>
+              <td>
+                <li>{car.Price}</li>
+              </td>
+              <td>
+                <li>{car.HP}</li>
+              </td>
+              <td>
+                {role === "admin" ?
+                  <li><Button>UPDATE</Button></li>
+                  :
+                  <li><Button>RENT</Button></li>
+                }
+
+              </td>
+            </tr>
+          )
+
+        }) }
+
+      </tbody>
+    </table>
+  </div>)
+}
+
+function availableCheck(){
+
 }
 
 //Génère la page pour ajouter des voitures
@@ -298,9 +385,11 @@ function CreationVoiture(){
   </div>
   )
 }
-//Fct pour ajouter des voitures 
-async function database(){
-  
+//Fct pour ajouter des voitures
+async function PutCar(){
+
+  // const [Adress, setAdress] = useState("")
+
   var Model_voiture = document.getElementById('ModelVoiture').value;
   var EssenceVoiture = document.getElementById('EssenceVoiture').value;
   var MarqueVoiture = document.getElementById('MarqueVoiture').value;
@@ -527,10 +616,11 @@ function Profil(props){
 function App() {
 const [user, setUser] = useState(null)
 
-/******************************** api get firebase ==> plusieurs useEffect possible ? ******************************************/ 
+/******************************** api get firebase ==> plusieurs useEffect possible ? ******************************************/
 
 
 useEffect(() => onAuthStateChanged(auth, (newUser) => {
+
   console.log("auth",newUser)
   if (newUser){
     console.log(newUser.uid, newUser.email)
@@ -539,6 +629,8 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
     setUser(null)
   }
   }), [])
+
+
 
 
   return (
@@ -569,25 +661,11 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
               <NavLink to="/Settings" tag={Link}>
               <img
           width={"20%"}
-          src="gear.png" 
+          src="gear.png"
           />
               </NavLink>
             </NavItem>
-            <NavItem>
-              <NavLink to="/CreationVoiture" tag={Link}>
-              Ajouter une voiture
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink to="/Liste_voiture" tag={Link}>
-              Liste des voitures 
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink to="/Profil" tag={Link}>
-              Profil
-              </NavLink>
-            </NavItem>
+
           </Nav>
           <Button onClick={user ? () => signOut(auth) : () => signInWithRedirect(auth, provider)}>{user ? user.email : "Login"}</Button>
         </Collapse>
@@ -596,9 +674,13 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
           <Col>
             <Routes>
               <Route path="/" element={<Home />}/>
-              <Route path="products" element={<Products />}/>
-              <Route path="CreationVoiture" element={<CreationVoiture />}/>
-              <Route path="Liste_voiture" element={<Liste_voiture />}/>
+              <Route path="Voitures" element={<Cars user={user} />}/>
+              <Route path="Update" element={<EditUser  user={user}/>}>
+                <Route path=":uid" element={<EditUser  user={user}/>}/>
+              </Route>
+              {/* <Route path="products" element={<Products />}/> */}
+              <Route path="AddCar" element={<AddCar />}/>
+              {/* <Route path="Liste_voiture" element={<Liste_voiture />}/> */}
 
               <Route path="Profil" element={<Profil user={user} />}>
                 <Route path=":uid" element={<Profil/>}/>
@@ -613,5 +695,4 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
 
 
 
-export default App;
 export default App;
