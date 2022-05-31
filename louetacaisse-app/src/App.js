@@ -57,12 +57,28 @@ function Profil(props){
         <td>Licence Number : </td>
         <td>{Profil.Licencenumber ?? ''}</td>
       </tr>
+      <tr>
+        <td>Role : </td>
+        <td>{Profil.role}</td>
+      </tr>
+      <tr>
+        <td>{checkAdmin(Profil)}</td>
+      </tr>
     </tbody>
     <Button><Link to={`/Update/${props.user?.uid}`}>UPDATE</Link></Button>
 
   </table>
   )
 
+}
+
+function checkAdmin(profil){
+  console.log(profil)
+  if(profil.role == "admin"){
+    return(
+      <button>click me</button>
+    )
+  }
 }
 
 function checkInfos(value){
@@ -83,6 +99,26 @@ function checkInfos(value){
   return value
 }
 
+// async function checkInfos(value){
+//   console.log(value)
+//   if(value === undefined){
+//      const path = window.location.href
+//      const uid = path.split('/').pop()
+//      const querySnapshot = await setDoc(doc(db, "Users", uid), {
+//       Name: "",
+//       Firstname: "",
+//       Birthdate: "",
+//       Adress: "",
+//       Phonenumber: "",
+//       Licencenumber: "",
+//       ProfilPicture: "",
+//     });
+//    }
+//   else{
+//     var result = value
+//   }
+//   return value
+// }
 
 
 function EditUser(props){
@@ -133,8 +169,8 @@ function EditUser(props){
       ProfilPicture: ProfilPicture,
     });
     alert("The profil has corectly been updated !");
-    <Link to={`/Profil/${props.user.uid}`}></Link>
-
+    // <Link to={`/Profil/${props.user.uid}`}></Link>
+    window.location.href = "/Profil/"+uid
 
   }
   return (
@@ -187,63 +223,82 @@ function Home(){
 
 
 
-function Cars(){
+function Cars(user){
   const [cars, setCars] = useState([])
   useEffect(() => {
-    async function getCars(){
+    async function getCars(user){
+      user = user.user
+      console.log(user)
+      console.log(user.uid)
+      const docRef = doc(db, "Users", user.uid)
+      const docSnap = await getDoc(docRef)
+      const role = docSnap.data().role
+      console.log(role)
       const querySnapshot = await getDocs(collection(db, "Cars"));
       querySnapshot.forEach((car) => {
         // doc.data() is never undefined for query doc snapshots
         console.log(car.id, " => ", car.data());
+        return role
       });
       setCars(querySnapshot.docs.map(car => car.data()))
     }
-    getCars()
+    getCars(user)
+    
   }, [])
+  
 
-  return <table id="carsTable">
-    <thead>
-        <td>Brand</td>
-        <td>Model</td>
-        <td>Plate</td>
-        <td>Fuel</td>
-        <td>Price</td>
-        <td>Power</td>
-        <td><Button><Link to={`/AddCar`}>ADD</Link></Button></td>
-    </thead>
-    <tbody>
-      {cars.map((car) => {
-        console.log(car);
-        return (
-          <tr>
-            <td>
-              <li>{car.Brand}</li>
-            </td>
-            <td>
-              <li>{car.Model}</li>
-            </td>
-            <td>
-              <li>{car.PlateNumber}</li>
-            </td>
-            <td>
-              <li>{car.Fuel}</li>
-            </td>
-            <td>
-              <li>{car.Price}</li>
-            </td>
-            <td>
-              <li>{car.HP}</li>
-            </td>
-            <td>
-              <li><Button>UPDATE</Button></li>
-            </td>
-          </tr>
-        )
+  return (
+  <div>
+    <input type="checkbox" id="CarsPage" onChange={() => availableCheck()}></input>
+    <label> Available Only</label>
+    <table id="carsTable">
+      <thead>
+          <td>Brand</td>
+          <td>Model</td>
+          <td>Plate</td>
+          <td>Fuel</td>
+          <td>Price</td>
+          <td>Power</td>
+          <td><Button><Link to={`/AddCar`}>ADD</Link></Button></td>
+      </thead>
+      <tbody>
+        {cars.map((car) => {
+          console.log(car);
+          return (
+            <tr>
+              <td>
+                <li>{car.Brand}</li>
+              </td>
+              <td>
+                <li>{car.Model}</li>
+              </td>
+              <td>
+                <li>{car.PlateNumber}</li>
+              </td>
+              <td>
+                <li>{car.Fuel}</li>
+              </td>
+              <td>
+                <li>{car.Price}</li>
+              </td>
+              <td>
+                <li>{car.HP}</li>
+              </td>
+              <td>
+                <li><Button>UPDATE</Button></li>
+              </td>
+            </tr>
+          )
 
-      }) }
+        }) }
 
-    </tbody>
-  </table>
+      </tbody>
+    </table>
+  </div>)
+}
+
+function availableCheck(){
+
 }
 
 //Génère la page pour ajouter des voitures
@@ -330,7 +385,9 @@ const [user, setUser] = useState(null)
 
 console.log("Test", user)
 useEffect(() => onAuthStateChanged(auth, (newUser) => {
+
   console.log("auth",newUser)
+  console.log(newUser.uid)
   if (newUser){
     console.log(newUser.uid, newUser.email)
     setUser({uid: newUser.uid, email: newUser.email})
@@ -338,6 +395,8 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
     setUser(null)
   }
   }), [])
+
+
 
 
   return (
@@ -381,10 +440,10 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
           <Col>
             <Routes>
               <Route path="/" element={<Home />}/>
-              <Route path="Voitures" element={<Cars />}/>
+              <Route path="Voitures" element={<Cars user={user} />}/>
               <Route path="Update" element={<EditUser  user={user}/>}>
-                    <Route path=":uid" element={<EditUser  user={user}/>}/>
-                  </Route>
+                <Route path=":uid" element={<EditUser  user={user}/>}/>
+              </Route>
               {/* <Route path="products" element={<Products />}/> */}
               <Route path="AddCar" element={<AddCar />}/>
               {/* <Route path="Liste_voiture" element={<Liste_voiture />}/> */}
