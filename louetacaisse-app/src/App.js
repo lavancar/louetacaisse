@@ -5,7 +5,7 @@ import {Container, Col, Row, Button, Navbar, NavbarBrand, NavbarToggler, Collaps
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from 'react';
 import {Route, Routes, Link, useParams} from "react-router-dom"
-import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc, addDoc, updateDoc } from "firebase/firestore";
+import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc, addDoc, updateDoc, where } from "firebase/firestore";
 
 
 const provider = new GoogleAuthProvider();
@@ -117,7 +117,7 @@ function Profil(props){
               <td>{Profil.Role}</td>
             </tr>
           </tbody>
-          <Button><Link to={`/Update/${Profil.uid}`}>UPDATE</Link></Button>
+          <Button><Link to={`/Update/${props.user.uid}`}>UPDATE</Link></Button>
 
         </table>
       }
@@ -237,7 +237,7 @@ function EditUser(props){
       console.log("different value !")
       const querySnapshot = await updateDoc(doc(db, "Users", uid), {
         Name: name,
-        Firstname: firstName,
+        Firstname: firstName, 
         Birthdate: birthDate,
         Adress: Adress,
         Phonenumber: Phone,
@@ -263,7 +263,7 @@ function EditUser(props){
     }
 
     alert("The profil has corectly been updated !");
-    // window.location.href = "/Profil/"+uid
+    window.location.href = "/Profil/"+uid
 
   }
   return (
@@ -326,6 +326,62 @@ function Home(){
   return <div>Home</div>
 }
 
+function UpdateCar(){
+
+  // const path = window.location.href
+  // const owo = path.split('/').pop()
+  // console.log(owo)
+
+  // const uid = useParams().uid ?? props.user.uid
+  // const [Brand, setBrand] = useState("")
+  // const [Fuel, setFuel] = useState("")
+  // const [HP, setHP] = useState("")
+  // const [Model, setModel] = useState("")
+  // const [PlateNumber, setPlate] = useState("")
+  // const [Price, setPrice] = useState("")
+  // const [Available, setAvailable] = useState("")
+
+  // useEffect(() => {
+  //   async function updatecar(){
+
+  //     const docRef = doc(db, "Users", props.user.uid);
+  //     const docRef = doc(db, "Cars", owo);
+  //     const querySnapshot = await getDoc(docRef);
+  //     console.log("query = ")
+  //     console.log(querySnapshot.data())
+  //     setUsers(querySnapshot.data())
+  //     if (querySnapshot.exists()){
+  //       setBrand(querySnapshot.data().Brand)
+  //       setFuel(querySnapshot.data().Fuel)
+  //       setHP(querySnapshot.data().HP)
+  //       setModel(querySnapshot.data().Model)
+  //       setPrice(querySnapshot.data().Price)
+  //       setAvailable(querySnapshot.data().Available)
+  //       setRole(querySnapshot.data().Role)
+  //       setBirthDate(querySnapshot.data().birthDate)
+  //     }
+  //   }
+  //   updatecar()
+
+  // })
+  // const querySnapshot = updateDoc(doc(db, "Cars", owo), {
+  //   Model: Model,
+  //   Fuel: Fuel,
+  //   HP: HP,
+  //   Brand: Brand,
+  //   Price: Price,
+  //   Available: Available,
+  // });
+  // // console.log(querySnapshot)
+
+
+  // alert("The profil has corectly been updated !");
+  // // window.location.href = "/Profil/"+uid
+
+  return(
+      <p>bonjour</p>
+  )
+}
 
 
 function Cars(props){
@@ -340,14 +396,14 @@ function Cars(props){
         return
       }
       console.log(user)
-      console.log(user)
       console.log(user.uid)
       const docRef = doc(db, "Users", user.uid)
       const docSnap = await getDoc(docRef)
       const newRole = docSnap.data().Role
       console.log(newRole)
       setRole(newRole)
-      const querySnapshot = await getDocs(collection(db, "Cars"));
+      const querySnapshot = await getDocs(collection(db, "Cars"), where("Available", "==", true));
+      // const querySnapshot = await getDocs(collection(db, "Cars"));
       querySnapshot.forEach((car) => {
         // doc.data() is never undefined for query doc snapshots
         console.log(car.id, " => ", car.data());
@@ -373,6 +429,7 @@ function Cars(props){
           <td>Fuel</td>
           <td>Price</td>
           <td>Power</td>
+          <td>Available</td>
           {role === "admin" ?
               <td><Button><Link to={`/AddCar`}>ADD</Link></Button></td>
                   :
@@ -403,11 +460,12 @@ function Cars(props){
               <td>
                 <li>{car.HP}</li>
               </td>
+              <td>{car.Available}</td>
               <td>
                 {role === "admin" ?
-                  <li><Button>UPDATE</Button></li>
+                  <li><Button><Link to={`/UpdateCar/${car.id}`} tag={Link}>UPDATE</Link></Button></li>
                   :
-                  <li><Button>RENT</Button></li>
+                  <li><Button onClick={() => Rent(props, car.id)}>RENT</Button></li>
                 }
 
               </td>
@@ -421,13 +479,26 @@ function Cars(props){
   </div>)
 }
 
-function availableCheck(){
+function Rent(props, carID){
+  console.log(carID)
+  const clientId = props.user.uid 
+  console.log(clientId)
+  const PUSH = addDoc(collection(db,'Reservation'), {
+    CarId: carID,
+    ClientId: clientId,
+  });
+  const washingtonRef = doc(db, "Cars", carID);
+  updateDoc(washingtonRef, {
+    Available: false
+  });
+
 
 }
 
+function availableCheck(){}
+
 //Génère la page pour ajouter des voitures
 function AddCar(){
-
 
 
   return (<div id="div_CreationVoiture" >
@@ -464,7 +535,6 @@ function AddCar(){
 
   </table>
 
-
   </div>
   )
 }
@@ -487,6 +557,7 @@ async function PutCar(){
     Fuel: EssenceVoiture,
     Price: PrixVente,
     HP: Puissance,
+    Available: true,
   });
   //Je retire les données écrites dans les inputs
   document.getElementById('ModelVoiture').value = "";
@@ -496,6 +567,8 @@ async function PutCar(){
   document.getElementById('PrixVente').value = "";
   document.getElementById('Puissance').value = "";
 
+  alert("The car is corectly created !");
+  window.location.href = "/Voitures"
 }
 
 
@@ -564,6 +637,10 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
             <Routes>
               <Route path="/" element={<Home />}/>
               <Route path="Voitures" element={<Cars user={user} />}/>
+
+              <Route path="UpdateCar" element={<UpdateCar user={user}/>}>
+                <Route path=":uid" element={<UpdateCar/>}></Route>
+              </Route>
               <Route path="Update" element={<EditUser  user={user}/>}>
                 <Route path=":uid" element={<EditUser  user={user}/>}/>
               </Route>
