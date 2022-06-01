@@ -1,11 +1,11 @@
 import app from "./firebase";
-import "./App.css";
+import "./App.css"
 import { GoogleAuthProvider, getAuth, signInWithRedirect, onAuthStateChanged, signOut } from "firebase/auth";
 import {Container, Col, Row, Button, Navbar, NavbarBrand, NavbarToggler, Collapse, Nav, NavItem, NavLink} from "reactstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from 'react';
 import {Route, Routes, Link, useParams} from "react-router-dom"
-import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc, addDoc, updateDoc, where, query } from "firebase/firestore";
+import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc, addDoc, updateDoc } from "firebase/firestore";
 
 
 const provider = new GoogleAuthProvider();
@@ -17,17 +17,27 @@ let newName;
 function Profil(props){
   console.log("props = " ,props)
   const [Profil, setProfils] = useState({})
+  const [users, setUsers] = useState([])
   useEffect(async () => {
     async function getProfil(){
       if(! props.user) {
         return
       }
+
+      const query = await getDocs(collection(db, "Users"));
+      query.forEach((user) => {
+      // doc.data() is never undefined for query doc snapshots
+        console.log(user.id, " => ", user.data());
+      })
+
       const docRef = doc(db, "Users", props.user.uid);
       const querySnapshot = await getDoc(docRef);
       console.log("query = ")
       console.log(querySnapshot.data())
       setProfils(querySnapshot.data())
+      setUsers(query.docs.map(user => ({id:user.id, ...user.data()})))
     }
+
     newName = await checkInfos(Profil.Name)
     getProfil()
   }, [props.user])
@@ -36,7 +46,45 @@ function Profil(props){
     <div>
       {console.log(Profil.Role)}
       {Profil.Role === "admin" ?
-        <p>salute</p>
+        // ListUsers()
+        <table>
+          <thead>
+            <td>Name</td>
+            <td>FirstName</td>
+            <td>Phone Number</td>
+            <td>Licence Number</td>
+            <td>Role</td>
+            <td></td>
+          </thead>
+          <tbody>
+            {users.map((user) => {
+              return (
+                <tr>
+                {console.log(user.id, " => ", user)} 
+                <td>
+                  <li>{user.Name}</li>
+                </td>
+                <td>
+                  <li>{user.Firstname}</li>
+                </td>
+                <td>
+                  <li>{user.Phonenumber}</li>
+                </td>
+                <td>
+                  <li>{user.Licencenumber}</li>
+                </td>
+                <td>
+                  <li>{user.Role}</li>
+                </td>
+                <td>
+                <Button><Link to={`/Update/${user.id}`}>UPDATE</Link></Button>
+                </td>
+              </tr>
+              )
+              
+            }) }
+          </tbody>
+        </table>
         :
         <table id="userTable">
           <tbody>
@@ -69,30 +117,44 @@ function Profil(props){
               <td>{Profil.Role}</td>
             </tr>
           </tbody>
-          <Button><Link to={`/Update/${props.user?.uid}`}>UPDATE</Link></Button>
+          <Button><Link to={`/Update/${Profil.uid}`}>UPDATE</Link></Button>
 
         </table>
       }
     </div>
     
+  
   )
+
 }
 
-function checkAdmin(profil){
-  console.log(profil)
-  if(profil.role == "admin"){
-    return(
-      <button>click me</button>
-    )
-  }
-}
+// function ListUsers(props){
+  
+//   const [user, setUsers] = useState([])
+//   useEffect(async () => {
+//     async function getUserList(){
+//     const querySnapshot = await getDocs(collection(db, "Users"));
+//     querySnapshot.forEach((user) => {
+//       // doc.data() is never undefined for query doc snapshots
+//       console.log(user.id, " => ", user.data());
+//     });
+//     setUsers(querySnapshot.docs.map(user => user.data()))
+//   }
+//   getUserList()
+//   }, [props.user])
+
+//   return(
+//   <p></p>
+//   )
+
+// }
 
 async function checkInfos(value){
 
   async function GetUser(){
    const path = window.location.href
    const uid = path.split('/').pop()
-   const docRef = doc(db, "Users", uid);
+   const docRef = doc(db, "Users", uid);  
    console.log(uid)
    const querySnapshot = await getDoc(docRef);
    console.log("query = ")
@@ -111,15 +173,26 @@ async function checkInfos(value){
      Phonenumber: "",
      Licencenumber: "",
      ProfilPicture: "",
-     Role: "user",
    });
   }
 }
 
-
+// le problème viens de la !!! ****************************************************************************
 
 function EditUser(props){
-
+  const path = window.location.href
+  const uwu = path.split('/').pop()
+  const docRef = doc(db, "Users", uwu);  
+  console.log(uwu)
+  console.log(props)
+  console.log(props.user)
+  if(uwu != props.user.uid){
+    console.log("salut")
+  }
+  else{
+    console.log("same shit")
+  }
+  // console.log(props.user.uid)
   const uid = useParams().uid ?? props.user.uid
   const [name, setName] = useState("")
   const [firstName, setfirstName] = useState("")
@@ -129,11 +202,13 @@ function EditUser(props){
   const [Licence, setLicence] = useState("")
   const [ProfilPicture, setPicture] = useState("")
   const [users, setUsers] = useState()
+  const [Role, setRole] = useState("")
 
   useEffect(() => {
     async function getProfil(){
 
-      const docRef = doc(db, "Users", props.user.uid);
+      // const docRef = doc(db, "Users", props.user.uid);
+      const docRef = doc(db, "Users", uwu);
       const querySnapshot = await getDoc(docRef);
       console.log("query = ")
       console.log(querySnapshot.data())
@@ -145,6 +220,7 @@ function EditUser(props){
         setPhone(querySnapshot.data().Phonenumber)
         setLicence(querySnapshot.data().Licencenumber)
         setPicture(querySnapshot.data().ProfilPicture)
+        setRole(querySnapshot.data().Role)
         // setBirthDate(querySnapshot.data().birthDate)
       }
     }
@@ -155,19 +231,39 @@ function EditUser(props){
 
 
   async function addUser(user){
+    console.log(props.user.uid)
+    console.log(uid)
+    if(props.user.uid != uid){
+      console.log("different value !")
+      const querySnapshot = await updateDoc(doc(db, "Users", uid), {
+        Name: name,
+        Firstname: firstName,
+        Birthdate: birthDate,
+        Adress: Adress,
+        Phonenumber: Phone,
+        Licencenumber: Licence,
+        ProfilPicture: ProfilPicture,
+        Role: Role
+      });
+      console.log(querySnapshot)
+    }
+    else if(props.user.uid == uid){
+      const querySnapshot = await updateDoc(doc(db, "Users", props.user.uid), {
+        Name: name,
+        Firstname: firstName,
+        Birthdate: birthDate,
+        Adress: Adress,
+        Phonenumber: Phone,
+        Licencenumber: Licence,
+        ProfilPicture: ProfilPicture,
+        Role: Role
+      });
+      console.log(querySnapshot)
 
-    const querySnapshot = await updateDoc(doc(db, "Users", uid), {
-      Name: name,
-      Firstname: firstName,
-      Birthdate: birthDate,
-      Adress: Adress,
-      Phonenumber: Phone,
-      Licencenumber: Licence,
-      ProfilPicture: ProfilPicture,
-      
-    });
+    }
+
     alert("The profil has corectly been updated !");
-    window.location.href = "/Profil/"+uid
+    // window.location.href = "/Profil/"+uid
 
   }
   return (
@@ -202,6 +298,18 @@ function EditUser(props){
       <td>Profil Picture :</td>
       <td><input type="text" id="ProfilPicture" value={ProfilPicture} onChange={e=> setPicture(e.target.value)}/></td>
       </tr>
+      {Role === "admin" ? 
+      <tr>
+        <td>Role :</td>
+        <td><input type="text" id="role" value={Role} onChange={e=> setRole(e.target.value)}/></td>       
+      </tr>
+      : 
+      <tr>
+        <td>Role :</td>
+        <td>{Role}</td>
+      </tr>      
+      }
+
       <Button><Link to={`/Profil/${props.user.uid}`}>Back</Link></Button>
       <Button onClick={addUser}>Valider</Button>
       </>
@@ -211,9 +319,19 @@ function EditUser(props){
   )
 }
 
+
+
+
 function Home(){
   return <div>Home</div>
 }
+
+function UpdateCar(){
+  return(
+    <Button><Link to="/Voitures">BACK</Link></Button>
+  )
+}
+
 
 function Cars(props){
   const [cars, setCars] = useState([])
@@ -240,12 +358,13 @@ function Cars(props){
         console.log(car.id, " => ", car.data());
         return role
       });
-      setCars(querySnapshot.docs.map(car => car.data()))
+      setCars(querySnapshot.docs.map(car => ({id:car.id, ...car.data()})))
     }
     getCars()
     
   }, [props.user])
   
+
 
   return (
   <div>
@@ -291,7 +410,7 @@ function Cars(props){
               </td>
               <td>
                 {role === "admin" ?
-                  <li><Button>UPDATE</Button></li>
+                  <li><Button><Link to={`/UpdateCar/${car.id}`} tag={Link}>UPDATE</Link></Button></li>
                   :
                   <li><Button>RENT</Button></li>
                 }
@@ -308,26 +427,11 @@ function Cars(props){
 }
 
 function availableCheck(){
-  if (document.getElementById("CarsPage").checked == true)
-  {
-    //afficher que les voitures dispo
 
-    // const querySnapshot = getDocs(collection(db, "Cars"), where("Available","==",true));
-    // console.log(query)
-
-    // querySnapshot.forEach((car) => {
-    //   // doc.data() is never undefined for query doc snapshots
-    //   console.log(car.id, " => ", car.data());
-    // });
-    console.log("if")
-  }
-  else{
-    console.log("else")
-  }
 }
 
 //Génère la page pour ajouter des voitures
-function CreationVoiture(){
+function AddCar(){
 
 
 
@@ -361,7 +465,7 @@ function CreationVoiture(){
       <td><input type="text" id="Puissance"></input></td>
     </tr>
 
-    <button onClick={database}> Enregistrer voiture</button>
+    <button onClick={PutCar}> Enregistrer voiture</button>
 
   </table>
 
@@ -399,200 +503,6 @@ async function PutCar(){
 
 }
 
-function Liste_voiture(){
-  //Je fais mes requêtes pour avoir une liste de mes voitures
-  const [cars, setCars] = useState([])
-  useEffect(() => {
-    async function getCars(){
-      const querySnapshot = await getDocs(collection(db, "Cars"));
-      querySnapshot.forEach((car) => {
-        // doc.data() is never undefined for query doc snapshots
-        console.log(car.id, " => ", car.data());
-      });
-      setCars(querySnapshot.docs.map(car => {
-        return {
-          id: car.id, //Place un id : dans mon tableau
-          ...car.data()//... => clone | car.data() => toutes les données que j'ai récupéré  
-        }
-      }))
-    }
-    getCars()
-  }, [])
-
-
- async function EditVoiture(carsID){
-      console.log(carsID);
-      const docRef = doc(db, "Cars", carsID);
-      const docSnap = await getDocs(docRef);
-      const tempoVAR = docSnap.data();
-      
-      return(
-        <table border="1">
-        <tr colspan="2">Ajout d'une voiture dans le catalogue</tr>
-        <br/>
-        <tr>
-          <td>Modèle de la voiture</td>
-          <td><input type="text" id="ModelVoiture" value={tempoVAR.Brand}></input></td>
-        </tr>
-        <tr>
-          <td>Type d'essence</td>
-          <td><input type="text" id="EssenceVoiture" value={tempoVAR.Model}></input></td>
-        </tr>
-        <tr>
-          <td>Marque de la voiture</td>
-          <td><input type="text" id="MarqueVoiture" value={tempoVAR.Brand}></input></td>
-        </tr>
-        <tr>
-          <td>Plaque d'immatriculation</td>
-          <td><input type="text" id="Immatriculation" value={tempoVAR.Brand}></input></td>
-        </tr>
-        <tr>
-          <td> Prix de vente (€)</td>
-          <td><input type="number" id="PrixVente" value={tempoVAR.Brand}></input></td>
-        </tr>
-        <tr>
-          <td> Puissance </td>
-          <td><input type="text" id="Puissance" value={tempoVAR.Brand}></input></td>
-        </tr>
-    
-        <button onClick={database}> Enregistrer voiture</button>
-    
-        </table>
-      );
-     
-   
-  }
-
-
-  return (<table id="carsTable">
-    <thead>
-        <td>Brand</td>
-        <td>Model</td>
-        <td>Plate</td>
-        <td>Fuel</td>
-        <td>Price</td>
-        <td>Power</td>
-        <td>Edition</td>
-    </thead>
-    <tbody>
-      {cars.map((car) => {
-        console.log(car);
-        return (
-          <tr>
-            <td>
-              <li>{car.Brand}</li>
-            </td>
-            <td>
-              <li>{car.Model}</li>
-            </td>
-            <td>
-              <li>{car.PlateNumber}</li>
-            </td>
-            <td>
-              <li>{car.Fuel}</li>
-            </td>
-            <td>
-              <li>{car.Price}</li>
-            </td>
-            <td>
-              <li>{car.HP}</li>
-            </td>
-            <td>
-              <button onClick={() => EditVoiture(car.id)}>Edit</button>
-            </td>
-
-          </tr>
-        )
-        
-      }) }
-      
-      
-    </tbody>
-  </table>
-  );
-
-}
-
-
-
-
-
-function Profil(props){
-  
-  const uid = useParams().uid ?? props.user.uid
-  const [name, setName] = useState("")
-  const [firstName, setFirstName] = useState("")
-  const [birthDate, setBirthDate] = useState("")
-  const [Adress, setAdress] = useState("")
-  const [Phone, setPhone] = useState("")
-  const [Licence, setLicence] = useState("")
-
-
-  const [Users, setCars] = useState([])
-  useEffect(() => {
-    async function getCars(){
-      const querySnapshot = await getDocs(collection(db, "Users"));
-      querySnapshot.forEach((user) => {
-        // doc.data() is never undefined for query doc snapshots
-        console.log(user.id, " => ", user.data());
-      });
-      setCars(querySnapshot.docs.map(user => user.data()))
-    }
-    getCars()
-  }, [])
-
-    // {cars.map((car) => {
-    //  console.log(car);
-
-
-
-  async function addUser(user){
-
-    const querySnapshot = await setDoc(doc(db, "Users", uid), {
-      Name: name,
-      Firstname: firstName,
-      Birthdate: birthDate,
-      Adress: Adress,
-      Phonenumber: Phone,
-      Licencenumber: Licence
-    });
-      
-  }
-
-  return (
-    <table id="tableSetting">
-      <tr>
-        <td>UID :</td>
-        <td><input type="text" id="name" value={uid} /></td>
-      </tr>
-      <tr>
-        <td>Name :</td>
-        <td><input type="text" id="name" value={name} onChange={e=> setName(e.target.value)} /></td>
-      </tr>
-      <tr>
-        <td>First name :</td>
-        <td><input type="text" id="firstname" value={firstName} onChange={e=> setFirstName(e.target.value)}/></td>
-      </tr>
-      <tr>
-        <td>Birth date :</td>
-        <td><input type="date" id="birthdate" value={birthDate} onChange={e=> setBirthDate(e.target.value)}/></td>
-      </tr>
-      <tr>
-        <td>Adress :</td>
-        <td><input type="text" id="adress" value={Adress} onChange={e=> setAdress(e.target.value)}/></td>
-      </tr>
-      <tr>
-        <td>Phone number :</td>
-        <td><input type="number" id="phonenumber" value={Phone} onChange={e=> setPhone(e.target.value)}/></td>
-      </tr>
-      <tr>
-        <td>Licence number :</td>
-        <td><input type="number" id="licencenumber" value={Licence} onChange={e=> setLicence(e.target.value)}/></td>
-      </tr>
-      <Button onClick={addUser}>Valider</Button>      
-    </table>
-  )
-}
 
 
 
@@ -602,7 +512,7 @@ const [user, setUser] = useState(null)
 
 /******************************** api get firebase ==> plusieurs useEffect possible ? ******************************************/
 
-
+console.log("Test", user)
 useEffect(() => onAuthStateChanged(auth, (newUser) => {
 
   console.log("auth",newUser)
@@ -659,6 +569,10 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
             <Routes>
               <Route path="/" element={<Home />}/>
               <Route path="Voitures" element={<Cars user={user} />}/>
+
+              <Route path="UpdateCar" element={<UpdateCar user={user}/>}>
+                <Route path=":uid" element={<UpdateCar user={user} />}></Route>
+              </Route>
               <Route path="Update" element={<EditUser  user={user}/>}>
                 <Route path=":uid" element={<EditUser  user={user}/>}/>
               </Route>
