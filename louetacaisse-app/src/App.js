@@ -263,7 +263,7 @@ function EditUser(props){
     }
 
     alert("The profil has corectly been updated !");
-    // window.location.href = "/Profil/"+uid
+    window.location.href = "/Profil/"+uid
 
   }
   return (
@@ -298,16 +298,16 @@ function EditUser(props){
       <td>Profil Picture :</td>
       <td><input type="text" id="ProfilPicture" value={ProfilPicture} onChange={e=> setPicture(e.target.value)}/></td>
       </tr>
-      {Role === "admin" ?
+      {Role === "admin" ? 
       <tr>
         <td>Role :</td>
-        <td><input type="text" id="role" value={Role} onChange={e=> setRole(e.target.value)}/></td>
+        <td><input type="text" id="role" value={Role} onChange={e=> setRole(e.target.value)}/></td>       
       </tr>
-      :
-      <tr>
+      : 
         <td>Role :</td>
+      <tr>
         <td>{Role}</td>
-      </tr>
+      </tr>      
       }
 
       <Button><Link to={`/Profil/${props.user.uid}`}>Back</Link></Button>
@@ -436,7 +436,7 @@ function Cars(props){
                 {role === "admin" ?
                   <li><Button><Link to={`/UpdateCar/${car.id}`} tag={Link}>UPDATE</Link></Button></li>
                   :
-                  <li><Button>RENT</Button></li>
+                  <li><Button onClick={() => Rent(props, car.id)}>RENT</Button></li>
                 }
 
               </td>
@@ -450,10 +450,26 @@ function Cars(props){
   </div>)
 }
 
+function Rent(props, carID){
+  console.log(carID)
+  const clientId = props.user.uid 
+  console.log(clientId)
+  const PUSH = addDoc(collection(db,'Reservation'), {
+    CarId: carID,
+    ClientId: clientId,
+  });
+  const washingtonRef = doc(db, "Cars", carID);
+  updateDoc(washingtonRef, {
+    Available: false
+  });
+
+
+}
+
+function availableCheck(){}
 
 //Génère la page pour ajouter des voitures
 function AddCar(){
-
 
 
   return (<div id="div_CreationVoiture" >
@@ -490,7 +506,6 @@ function AddCar(){
 
   </table>
 
-
   </div>
   )
 }
@@ -513,6 +528,7 @@ async function PutCar(){
     Fuel: EssenceVoiture,
     Price: PrixVente,
     HP: Puissance,
+    Available: true,
   });
   //Je retire les données écrites dans les inputs
   document.getElementById('ModelVoiture').value = "";
@@ -522,6 +538,8 @@ async function PutCar(){
   document.getElementById('PrixVente').value = "";
   document.getElementById('Puissance').value = "";
 
+  alert("The car is corectly created !");
+  window.location.href = "/Voitures"
 }
 
 
@@ -591,7 +609,7 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
               <Route path="Voitures" element={<Cars user={user} />}/>
 
               <Route path="UpdateCar" element={<UpdateCar user={user}/>}>
-                <Route path=":uid" element={<UpdateCar user={user} />}></Route>
+                <Route path=":uid" element={<UpdateCar/>}></Route>
               </Route>
               <Route path="Update" element={<EditUser  user={user}/>}>
                 <Route path=":uid" element={<EditUser  user={user}/>}/>
