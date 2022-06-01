@@ -353,7 +353,7 @@ function Cars(props){
         console.log(car.id, " => ", car.data());
         return role
       });
-      setCars(querySnapshot.docs.map(car => car.data()))
+      setCars(querySnapshot.docs.map(car => ({id:car.id, ...car.data()})))
     }
     getCars()
     
