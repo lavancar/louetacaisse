@@ -310,23 +310,23 @@ function Cars(props){
 }
 
 function availableCheck(){
-  if (document.getElementById("CarsPage").checked == true)
-  {
-    //afficher que les voitures dispo
+  // if (document.getElementById("CarsPage").checked == true)
+  // {
+  //   //afficher que les voitures dispo
 
-    const querySnapshot = getDocs(collection(db, "Cars"), where("Available","==",true));
-    console.log(query)
+  //   const querySnapshot = getDocs(collection(db, "Cars"), where("Available","==",true));
+  //   console.log(query)
 
-    querySnapshot.forEach((car) => {
-      // doc.data() is never undefined for query doc snapshots
-      console.log(car.id, " => ", car.data());
-    });
+  //   querySnapshot.forEach((car) => {
+  //     // doc.data() is never undefined for query doc snapshots
+  //     console.log(car.id, " => ", car.data());
+  //   });
 
-    console.log("if")
-  }
-  else{
-    console.log("else")
-  }
+  //   console.log("if")
+  // }
+  // else{
+  //   console.log("else")
+  // }
 }
 
 //Génère la page pour ajouter des voitures
