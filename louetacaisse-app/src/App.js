@@ -5,7 +5,7 @@ import {Container, Col, Row, Button, Navbar, NavbarBrand, NavbarToggler, Collaps
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from 'react';
 import {Route, Routes, Link, useParams} from "react-router-dom"
-import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc, addDoc, updateDoc } from "firebase/firestore";
+import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc, addDoc, updateDoc, where, query } from "firebase/firestore";
 
 
 const provider = new GoogleAuthProvider();
@@ -33,79 +33,49 @@ function Profil(props){
   }, [props.user])
 
   return (
-  <table id="userTable">
-    <tbody>
-      <tr>
-        <td>UID : </td>
-        <td>{props.user?.uid ?? ''}</td>
-      </tr>
-      <tr>
-        <td>Name : </td>
-        { <td>{Profil.Name ?? ''}</td> }
-      </tr>
-      <tr>
-        <td>First Name : </td>
-        <td>{Profil.Firstname ?? ''}</td>
-      </tr>
-      <tr>
-        <td>Phone Number : </td>
-        <td>{Profil.Phonenumber ?? ''}</td>
-      </tr>
-      <tr>
-        <td>Email : </td>
-        <td>{props.user?.email ?? ''}</td>
-      </tr>
-      <tr>
-        <td>Licence Number : </td>
-        <td>{Profil.Licencenumber ?? ''}</td>
-      </tr>
-      <tr>
-        <td>Role : </td>
-        <td>{Profil.role}</td>
-      </tr>
-      <tr>
-        <td>{checkAdmin(Profil)}</td>
-      </tr>
-    </tbody>
-    <Button><Link to={`/Update/${props.user?.uid}`}>UPDATE</Link></Button>
+    <div>
+      {console.log(Profil.Role)}
+      {Profil.Role === "admin" ?
+        <p>salute</p>
+        :
+        <table id="userTable">
+          <tbody>
+            <tr>
+              <td>UID : </td>
+              <td>{props.user?.uid ?? ''}</td>
+            </tr>
+            <tr>
+              <td>Name : </td>
+              { <td>{Profil.Name ?? ''}</td> }
+            </tr>
+            <tr>
+              <td>First Name : </td>
+              <td>{Profil.Firstname ?? ''}</td>
+            </tr>
+            <tr>
+              <td>Phone Number : </td>
+              <td>{Profil.Phonenumber ?? ''}</td>
+            </tr>
+            <tr>
+              <td>Email : </td>
+              <td>{props.user?.email ?? ''}</td>
+            </tr>
+            <tr>
+              <td>Licence Number : </td>
+              <td>{Profil.Licencenumber ?? ''}</td>
+            </tr>
+            <tr>
+              <td>Role : </td>
+              <td>{Profil.Role}</td>
+            </tr>
+          </tbody>
+          <Button><Link to={`/Update/${props.user?.uid}`}>UPDATE</Link></Button>
 
-  </table>
+        </table>
+      }
+    </div>
+    
   )
-
-}
-
-async function checkInfos(value){
-
-   async function GetUser(){
-    const path = window.location.href
-    const uid = path.split('/').pop()
-    const docRef = doc(db, "Users", uid);
-    console.log(uid)
-    const querySnapshot = await getDoc(docRef);
-    console.log("query = ")
-
-    return querySnapshot.data() === undefined
-   }
-
-   if(await GetUser() === true){
-     const path = window.location.href
-     const uid = path.split('/').pop()
-     const querySnapshot = setDoc(doc(db, "Users", uid), {
-      Name: "",
-      Firstname: "",
-      Birthdate: "",
-      Adress: "",
-      Phonenumber: "",
-      Licencenumber: "",
-      ProfilPicture: "",
-    });
-    value = "";
-   }
-  else{
-    var value = "else"
-  }
-  console.log("ma value est : " + value);
-  return value
 }
 
 function checkAdmin(profil){
@@ -141,6 +111,7 @@ async function checkInfos(value){
      Phonenumber: "",
      Licencenumber: "",
      ProfilPicture: "",
+     Role: "user",
    });
   }
 }
@@ -339,7 +310,23 @@ function Cars(props){
 }
 
 function availableCheck(){
+  if (document.getElementById("CarsPage").checked == true)
+  {
+    //afficher que les voitures dispo
 
+    const querySnapshot = getDocs(collection(db, "Cars"), where("Available","==",true));
+    console.log(query)
+
+    querySnapshot.forEach((car) => {
+      // doc.data() is never undefined for query doc snapshots
+      console.log(car.id, " => ", car.data());
+    });
+
+    console.log("if")
+  }
+  else{
+    console.log("else")
+  }
 }
 
 //Génère la page pour ajouter des voitures
