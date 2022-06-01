@@ -263,7 +263,7 @@ function EditUser(props){
     }
 
     alert("The profil has corectly been updated !");
-    window.location.href = "/Profil/"+uid
+    window.location.href = "/"
 
   }
   return (
@@ -326,62 +326,89 @@ function Home(){
   return <div>Home</div>
 }
 
+
+
 function UpdateCar(){
-
+  const params = useParams();
+  const uid = params.uid
   // const path = window.location.href
-  // const owo = path.split('/').pop()
-  // console.log(owo)
+  // const uid = path.split('/').pop()
+  console.log(uid)
 
-  // const uid = useParams().uid ?? props.user.uid
-  // const [Brand, setBrand] = useState("")
-  // const [Fuel, setFuel] = useState("")
-  // const [HP, setHP] = useState("")
-  // const [Model, setModel] = useState("")
-  // const [PlateNumber, setPlate] = useState("")
-  // const [Price, setPrice] = useState("")
-  // const [Available, setAvailable] = useState("")
+  const [car, setMyCar] = useState(null)
+  useEffect(async () => {
+    const docRef = doc(db, "Cars", uid)
+    const MyCar = await getDoc(docRef)
+    console.log(MyCar.data())
 
-  // useEffect(() => {
-  //   async function updatecar(){
+    setMyCar(MyCar.data())
+    
+  
+  }, [] )
 
-  //     const docRef = doc(db, "Users", props.user.uid);
-  //     const docRef = doc(db, "Cars", owo);
-  //     const querySnapshot = await getDoc(docRef);
-  //     console.log("query = ")
-  //     console.log(querySnapshot.data())
-  //     setUsers(querySnapshot.data())
-  //     if (querySnapshot.exists()){
-  //       setBrand(querySnapshot.data().Brand)
-  //       setFuel(querySnapshot.data().Fuel)
-  //       setHP(querySnapshot.data().HP)
-  //       setModel(querySnapshot.data().Model)
-  //       setPrice(querySnapshot.data().Price)
-  //       setAvailable(querySnapshot.data().Available)
-  //       setRole(querySnapshot.data().Role)
-  //       setBirthDate(querySnapshot.data().birthDate)
-  //     }
-  //   }
-  //   updatecar()
+  console.log("car = ", car)
+  
+  //Quand je suis en train de charger mes données, je mes un message d'attente 
+  if(car == null){
+    return(
+      <p>Lownding...</p>
+    )
+  }
 
-  // })
-  // const querySnapshot = updateDoc(doc(db, "Cars", owo), {
-  //   Model: Model,
-  //   Fuel: Fuel,
-  //   HP: HP,
-  //   Brand: Brand,
-  //   Price: Price,
-  //   Available: Available,
-  // });
-  // // console.log(querySnapshot)
+  async function ModifCar(){
 
+  
+    const docRef = doc(db, "Cars", uid)
+    updateDoc(docRef, car);
+    alert("The car has correctly been updated")
+    window.location.href = "/Voitures"
+  }
 
-  // alert("The profil has corectly been updated !");
-  // // window.location.href = "/Profil/"+uid
+  
 
+  //J'affiche mes informations
   return(
-      <p>bonjour</p>
-  )
+    <div id="div_ModifVoiture" >
+    <table border="1" width="100%">
+      <tr colspan="2">Updating a car</tr>
+      <br/>
+      <tr>
+        <td>Modèle de la voiture</td>
+        <td><input type="text" id="ModelVoiture" value={car.Model} onChange={e => setMyCar({...car, Model: e.target.value})}></input></td>
+      </tr>
+      <tr>
+        <td>Type d'essence</td>
+        <td><input type="text" id="EssenceVoiture" value={car.Fuel} onChange={e => setMyCar({...car, Fuel: e.target.value})}></input></td>
+      </tr>
+      <tr>
+        <td>Marque de la voiture</td>
+        <td><input type="text" id="MarqueVoiture" value={car.Brand} onChange={e => setMyCar({...car, Brand: e.target.value})}></input></td>
+      </tr>
+      <tr>
+        <td>Plaque d'immatriculation</td>
+        <td><input type="text" id="Immatriculation" value={car.PlateNumber} onChange={e => setMyCar({...car, PlateNumber: e.target.value})}></input></td>
+      </tr>
+      <tr>
+        <td> Prix de vente (€)</td>
+        <td><input type="number" id="PrixVente" value={car.Price} onChange={e => setMyCar({...car, Price: e.target.value})}></input></td>
+      </tr>
+      <tr>
+        <td> Puissance </td>
+        <td><input type="text" id="Puissance" value={car.HP} onChange={e => setMyCar({...car, HP: e.target.value})}></input></td>
+      </tr>
+
+      <button onClick={ModifCar}> Modifier les informations</button>
+
+    </table>
+
+    <Button><Link to="/Voitures">BACK</Link></Button>
+
+  </div>
+  )//fin de mon
+
 }
+
+
 
 
 function Cars(props){
@@ -463,7 +490,7 @@ function Cars(props){
               <td>{car.Available}</td>
               <td>
                 {role === "admin" ?
-                  <li><Button><Link to={`/UpdateCar/${car.id}`} tag={Link}>UPDATE</Link></Button></li>
+                  <li><Button> <Link to={`/UpdateCar/${car.id}`} tag={Link}> UPDATE </Link></Button></li>
                   :
                   <li><Button onClick={() => Rent(props, car.id)}>RENT</Button></li>
                 }
@@ -599,7 +626,7 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
       <Container>
         <Navbar color="light" expand="md" light>
         <NavbarBrand href="/">
-          <img width={"30%"} src="loutacaisse.png" />
+          <img width={"30%"} src="http://localhost:3000/loutacaisse.png" />
         </NavbarBrand>
         <NavbarToggler onClick={function noRefCheck() { }}/>
         <Collapse navbar>
@@ -623,7 +650,7 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
               <NavLink to="/Settings" tag={Link}>
               <img
           width={"20%"}
-          src="gear.png"
+          src="http://localhost:3000/gear.png"
           />
               </NavLink>
             </NavItem>
@@ -637,6 +664,8 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
             <Routes>
               <Route path="/" element={<Home />}/>
               <Route path="Voitures" element={<Cars user={user} />}/>
+
+              <Route path="UpdateCar/:uid" element={<UpdateCar user={user} />} />
 
               <Route path="UpdateCar" element={<UpdateCar user={user}/>}>
                 <Route path=":uid" element={<UpdateCar/>}></Route>
