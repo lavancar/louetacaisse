@@ -5,7 +5,7 @@ import {Container, Col, Row, Button, Navbar, NavbarBrand, NavbarToggler, Collaps
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from 'react';
 import {Route, Routes, Link, useParams} from "react-router-dom"
-import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc, addDoc, updateDoc, where } from "firebase/firestore";
+import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc, addDoc, updateDoc, where, query } from "firebase/firestore";
 
 
 const provider = new GoogleAuthProvider();
@@ -60,7 +60,7 @@ function Profil(props){
             {users.map((user) => {
               return (
                 <tr>
-                {console.log(user.id, " => ", user)} 
+                {console.log(user.id, " => ", user)}
                 <td>
                   <li>{user.Name}</li>
                 </td>
@@ -81,7 +81,7 @@ function Profil(props){
                 </td>
               </tr>
               )
-              
+
             }) }
           </tbody>
         </table>
@@ -122,14 +122,14 @@ function Profil(props){
         </table>
       }
     </div>
-    
-  
+
+
   )
 
 }
 
 // function ListUsers(props){
-  
+
 //   const [user, setUsers] = useState([])
 //   useEffect(async () => {
 //     async function getUserList(){
@@ -154,7 +154,7 @@ async function checkInfos(value){
   async function GetUser(){
    const path = window.location.href
    const uid = path.split('/').pop()
-   const docRef = doc(db, "Users", uid);  
+   const docRef = doc(db, "Users", uid);
    console.log(uid)
    const querySnapshot = await getDoc(docRef);
    console.log("query = ")
@@ -182,7 +182,7 @@ async function checkInfos(value){
 function EditUser(props){
   const path = window.location.href
   const uwu = path.split('/').pop()
-  const docRef = doc(db, "Users", uwu);  
+  const docRef = doc(db, "Users", uwu);
   console.log(uwu)
   console.log(props)
   console.log(props.user)
@@ -237,7 +237,7 @@ function EditUser(props){
       console.log("different value !")
       const querySnapshot = await updateDoc(doc(db, "Users", uid), {
         Name: name,
-        Firstname: firstName, 
+        Firstname: firstName,
         Birthdate: birthDate,
         Adress: Adress,
         Phonenumber: Phone,
@@ -304,8 +304,8 @@ function EditUser(props){
         <td><input type="text" id="role" value={Role} onChange={e=> setRole(e.target.value)}/></td>       
       </tr>
       : 
-      <tr>
         <td>Role :</td>
+      <tr>
         <td>{Role}</td>
       </tr>      
       }
@@ -415,38 +415,62 @@ function Cars(props){
   const [cars, setCars] = useState([])
   const [role, setRole] = useState("user")
 
-  useEffect(() => {
-    async function getCars(){
-      const user = props.user
-      if(!user ){
-        setRole("user")
-        return
-      }
-      console.log(user)
-      console.log(user.uid)
-      const docRef = doc(db, "Users", user.uid)
-      const docSnap = await getDoc(docRef)
-      const newRole = docSnap.data().Role
-      console.log(newRole)
-      setRole(newRole)
-      const querySnapshot = await getDocs(collection(db, "Cars"), where("Available", "==", true));
-      // const querySnapshot = await getDocs(collection(db, "Cars"));
+  async function getCars(){
+    const user = props.user
+    if(!user ){
+      setRole("user")
+      return
+    }
+    console.log(user)
+    console.log(user.uid)
+    const docRef = doc(db, "Users", user.uid)
+    const docSnap = await getDoc(docRef)
+    const newRole = docSnap.data().Role
+    console.log(newRole)
+    setRole(newRole)
+
+    if (document.getElementById("CarsPage").checked){
+      const q = query(collection(db, "Cars"), where("Available", "==", true));
+      const querySnapshot = await getDocs(q)
       querySnapshot.forEach((car) => {
         // doc.data() is never undefined for query doc snapshots
         console.log(car.id, " => ", car.data());
         return role
       });
       setCars(querySnapshot.docs.map(car => ({id:car.id, ...car.data()})))
-    }
-    getCars()
+     }else{
+      const q = query(collection(db, "Cars"));
+      const querySnapshot = await getDocs(q)
+      querySnapshot.forEach((car) => {
+        // doc.data() is never undefined for query doc snapshots
+        console.log(car.id, " => ", car.data());
+        return role
+      });
+      setCars(querySnapshot.docs.map(car => ({id:car.id, ...car.data()})))
+     }
+    //const q = query(collection(db, "Cars"));
+    //const q = query(collection(db, "Cars"), where("Available", "==", true));
+
+    // const querySnapshot = await getDocs(q)
+    // querySnapshot.forEach((car) => {
+    //   // doc.data() is never undefined for query doc snapshots
+    //   console.log(car.id, " => ", car.data());
+    //   return role
+    // });
+    // setCars(querySnapshot.docs.map(car => ({id:car.id, ...car.data()})))
+  }
+
+  useEffect(() => {
     
+    getCars()
+
   }, [props.user])
-  
+
 
 
   return (
   <div>
-    <input type="checkbox" id="CarsPage" onChange={() => availableCheck()}></input>
+    <input type="checkbox" id="CarsPage" onChange={() => getCars()}></input>
     <label> Available Only</label>
     <table id="carsTable">
       <thead>
@@ -456,7 +480,6 @@ function Cars(props){
           <td>Fuel</td>
           <td>Price</td>
           <td>Power</td>
-          <td>Available</td>
           {role === "admin" ?
               <td><Button><Link to={`/AddCar`}>ADD</Link></Button></td>
                   :
@@ -487,7 +510,6 @@ function Cars(props){
               <td>
                 <li>{car.HP}</li>
               </td>
-              <td>{car.Available}</td>
               <td>
                 {role === "admin" ?
                   <li><Button> <Link to={`/UpdateCar/${car.id}`} tag={Link}> UPDATE </Link></Button></li>
@@ -607,7 +629,6 @@ const [user, setUser] = useState(null)
 
 /******************************** api get firebase ==> plusieurs useEffect possible ? ******************************************/
 
-console.log("Test", user)
 useEffect(() => onAuthStateChanged(auth, (newUser) => {
 
   console.log("auth",newUser)
