@@ -177,10 +177,22 @@ async function checkInfos(value){
   }
 }
 
-
+// le problème viens de la !!! ****************************************************************************
 
 function EditUser(props){
-
+  const path = window.location.href
+  const uwu = path.split('/').pop()
+  const docRef = doc(db, "Users", uwu);  
+  console.log(uwu)
+  console.log(props)
+  console.log(props.user)
+  if(uwu != props.user.uid){
+    console.log("salut")
+  }
+  else{
+    console.log("same shit")
+  }
+  // console.log(props.user.uid)
   const uid = useParams().uid ?? props.user.uid
   const [name, setName] = useState("")
   const [firstName, setfirstName] = useState("")
@@ -195,7 +207,8 @@ function EditUser(props){
   useEffect(() => {
     async function getProfil(){
 
-      const docRef = doc(db, "Users", props.user.uid);
+      // const docRef = doc(db, "Users", props.user.uid);
+      const docRef = doc(db, "Users", uwu);
       const querySnapshot = await getDoc(docRef);
       console.log("query = ")
       console.log(querySnapshot.data())
@@ -218,20 +231,39 @@ function EditUser(props){
 
 
   async function addUser(user){
-    console.log(user)
+    console.log(props.user.uid)
+    console.log(uid)
+    if(props.user.uid != uid){
+      console.log("different value !")
+      const querySnapshot = await updateDoc(doc(db, "Users", uid), {
+        Name: name,
+        Firstname: firstName,
+        Birthdate: birthDate,
+        Adress: Adress,
+        Phonenumber: Phone,
+        Licencenumber: Licence,
+        ProfilPicture: ProfilPicture,
+        Role: Role
+      });
+      console.log(querySnapshot)
+    }
+    else if(props.user.uid == uid){
+      const querySnapshot = await updateDoc(doc(db, "Users", props.user.uid), {
+        Name: name,
+        Firstname: firstName,
+        Birthdate: birthDate,
+        Adress: Adress,
+        Phonenumber: Phone,
+        Licencenumber: Licence,
+        ProfilPicture: ProfilPicture,
+        Role: Role
+      });
+      console.log(querySnapshot)
 
-    const querySnapshot = await updateDoc(doc(db, "Users", uid), {
-      Name: name,
-      Firstname: firstName,
-      Birthdate: birthDate,
-      Adress: Adress,
-      Phonenumber: Phone,
-      Licencenumber: Licence,
-      ProfilPicture: ProfilPicture,
-      Role: Role
-    });
+    }
+
     alert("The profil has corectly been updated !");
-    window.location.href = "/Profil/"+uid
+    // window.location.href = "/Profil/"+uid
 
   }
   return (
