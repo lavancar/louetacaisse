@@ -7,7 +7,6 @@ import { useEffect, useState } from 'react';
 import {Route, Routes, Link, useParams} from "react-router-dom"
 import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc, addDoc, updateDoc, where, query } from "firebase/firestore";
 
-
 const provider = new GoogleAuthProvider();
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -196,7 +195,7 @@ function EditUser(props){
   const uid = useParams().uid ?? props.user.uid
   const [name, setName] = useState("")
   const [firstName, setfirstName] = useState("")
-  const [birthDate, setBirthDate] = useState("")
+  // const [birthDate, setBirthDate] = useState("")
   const [Adress, setAdress] = useState("")
   const [Phone, setPhone] = useState("")
   const [Licence, setLicence] = useState("")
@@ -235,10 +234,12 @@ function EditUser(props){
     console.log(uid)
     if(props.user.uid != uid){
       console.log("different value !")
+      if(name !="" || firstName !="" || Adress !="" || Phone !="" || Licence !="" ){
+        alert("Missing information")
+      } else {
       const querySnapshot = await updateDoc(doc(db, "Users", uid), {
         Name: name,
         Firstname: firstName,
-        Birthdate: birthDate,
         Adress: Adress,
         Phonenumber: Phone,
         Licencenumber: Licence,
@@ -246,12 +247,17 @@ function EditUser(props){
         Role: Role
       });
       console.log(querySnapshot)
+      alert("The profil has corectly been updated !");
+    window.location.href = "/"
+    }
     }
     else if(props.user.uid == uid){
+      if(name !="" || firstName !="" || Adress !="" || Phone !="" || Licence !="" ){
+        alert("Missing information")
+      } else {
       const querySnapshot = await updateDoc(doc(db, "Users", props.user.uid), {
         Name: name,
         Firstname: firstName,
-        Birthdate: birthDate,
         Adress: Adress,
         Phonenumber: Phone,
         Licencenumber: Licence,
@@ -259,11 +265,12 @@ function EditUser(props){
         Role: Role
       });
       console.log(querySnapshot)
-
+      alert("The profil has corectly been updated !");
+    window.location.href = "/"
     }
 
-    alert("The profil has corectly been updated !");
-    window.location.href = "/Profil/"+uid
+    }
+    
 
   }
   return (
@@ -277,10 +284,6 @@ function EditUser(props){
       <tr>
       <td>First name :</td>
       <td><input type="text" id="firstname" value={firstName} onChange={e=> setfirstName(e.target.value)}/></td>
-      </tr>
-      <tr>
-      <td>Birth date :</td>
-      <td><input type="date" id="birthdate"  onChange={e=> setBirthDate(e.target.value)}/></td>
       </tr>
       <tr>
       <td>Adress :</td>
@@ -304,8 +307,8 @@ function EditUser(props){
         <td><input type="text" id="role" value={Role} onChange={e=> setRole(e.target.value)}/></td>       
       </tr>
       : 
-        <td>Role :</td>
       <tr>
+        <td>Role :</td>
         <td>{Role}</td>
       </tr>      
       }
@@ -326,11 +329,89 @@ function Home(){
   return <div>Home</div>
 }
 
+
+
 function UpdateCar(){
+  const params = useParams();
+  const uid = params.uid
+  // const path = window.location.href
+  // const uid = path.split('/').pop()
+  console.log(uid)
+
+  const [car, setMyCar] = useState(null)
+  useEffect(async () => {
+    const docRef = doc(db, "Cars", uid)
+    const MyCar = await getDoc(docRef)
+    console.log(MyCar.data())
+
+    setMyCar(MyCar.data())
+    
+  
+  }, [] )
+
+  console.log("car = ", car)
+  
+  //Quand je suis en train de charger mes données, je mes un message d'attente 
+  if(car == null){
+    return(
+      <p>Lownding...</p>
+    )
+  }
+
+  async function ModifCar(){
+
+  
+    const docRef = doc(db, "Cars", uid)
+    updateDoc(docRef, car);
+    alert("The car has correctly been updated")
+    window.location.href = "/Voitures"
+  }
+
+  
+
+  //J'affiche mes informations
   return(
+    <div id="div_ModifVoiture" >
+    <table border="1" width="100%">
+      <tr colspan="2">Updating a car</tr>
+      <br/>
+      <tr>
+        <td>Modèle de la voiture</td>
+        <td><input type="text" id="ModelVoiture" value={car.Model} onChange={e => setMyCar({...car, Model: e.target.value})}></input></td>
+      </tr>
+      <tr>
+        <td>Type d'essence</td>
+        <td><input type="text" id="EssenceVoiture" value={car.Fuel} onChange={e => setMyCar({...car, Fuel: e.target.value})}></input></td>
+      </tr>
+      <tr>
+        <td>Marque de la voiture</td>
+        <td><input type="text" id="MarqueVoiture" value={car.Brand} onChange={e => setMyCar({...car, Brand: e.target.value})}></input></td>
+      </tr>
+      <tr>
+        <td>Plaque d'immatriculation</td>
+        <td><input type="text" id="Immatriculation" value={car.PlateNumber} onChange={e => setMyCar({...car, PlateNumber: e.target.value})}></input></td>
+      </tr>
+      <tr>
+        <td> Prix de vente (€)</td>
+        <td><input type="number" id="PrixVente" value={car.Price} onChange={e => setMyCar({...car, Price: e.target.value})}></input></td>
+      </tr>
+      <tr>
+        <td> Puissance </td>
+        <td><input type="text" id="Puissance" value={car.HP} onChange={e => setMyCar({...car, HP: e.target.value})}></input></td>
+      </tr>
+
+      <button onClick={ModifCar}> Modifier les informations</button>
+
+    </table>
+
     <Button><Link to="/Voitures">BACK</Link></Button>
-  )
+
+  </div>
+  )//fin de mon
+
 }
+
+
 
 
 function Cars(props){
@@ -434,7 +515,7 @@ function Cars(props){
               </td>
               <td>
                 {role === "admin" ?
-                  <li><Button><Link to={`/UpdateCar/${car.id}`} tag={Link}>UPDATE</Link></Button></li>
+                  <li><Button> <Link to={`/UpdateCar/${car.id}`} tag={Link}> UPDATE </Link></Button></li>
                   :
                   <li><Button onClick={() => Rent(props, car.id)}>RENT</Button></li>
                 }
@@ -451,6 +532,54 @@ function Cars(props){
 }
 
 function Rent(props, carID){
+  var days = prompt("Select the number of day you want to rent : ", 0)
+  days = parseInt(days, 10)
+  if(days > 0){
+    if(days > 30){
+      alert("The maximum time for a location is 30 days !")
+    }
+    else{
+      var today = new Date();
+      var dd = String(today.getDate()).padStart(2, '0');
+      var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+      var yyyy = today.getFullYear();
+      today = mm + '/' + dd + '/' + yyyy;
+      console.log(today)
+      if(parseInt(mm) == 0, 2, 4, 6, 7, 9, 11){ //if mounth == jan, mar, may, jul, aug, oct, dec =>
+        dd = parseInt(dd) + days
+        if(parseInt(dd) > 31){
+          mm = parseInt(mm)+1
+          dd = parseInt(dd)-31
+          var delta = mm + '/' + dd + '/' + yyyy;
+          console.log(delta)
+        }
+        if(parseInt(mm) == 11){
+          if(dd > 30){
+          yyyy = parseInt(yyyy)+1
+          mm = 0
+          var delta = mm + '/' + dd + '/' + yyyy;
+          console.log(delta)
+          }
+        }
+      }
+      else if(parseInt(mm) == 1, 3, 5, 8, 10){
+        dd = parseInt(dd) + days
+        if(parseInt(dd) > 30){
+          mm = parseInt(mm)+1
+          dd = parseInt(dd)-30
+          var delta = mm + '/' + dd + '/' + yyyy;
+          console.log(delta)
+        }
+        var delta = mm + '/' + dd + '/' + yyyy;
+      }
+
+    }
+
+  }
+  else{
+    alert("wrong value")
+  }
+  console.log(days)
   console.log(carID)
   const clientId = props.user.uid 
   console.log(clientId)
@@ -569,7 +698,7 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
       <Container>
         <Navbar color="light" expand="md" light>
         <NavbarBrand href="/">
-          <img width={"30%"} src="loutacaisse.png" />
+          <img width={"30%"} src="http://localhost:3000/loutacaisse.png" />
         </NavbarBrand>
         <NavbarToggler onClick={function noRefCheck() { }}/>
         <Collapse navbar>
@@ -593,7 +722,7 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
               <NavLink to="/Settings" tag={Link}>
               <img
           width={"20%"}
-          src="gear.png"
+          src="http://localhost:3000/gear.png"
           />
               </NavLink>
             </NavItem>
@@ -607,6 +736,8 @@ useEffect(() => onAuthStateChanged(auth, (newUser) => {
             <Routes>
               <Route path="/" element={<Home />}/>
               <Route path="Voitures" element={<Cars user={user} />}/>
+
+              <Route path="UpdateCar/:uid" element={<UpdateCar user={user} />} />
 
               <Route path="UpdateCar" element={<UpdateCar user={user}/>}>
                 <Route path=":uid" element={<UpdateCar/>}></Route>
