@@ -182,14 +182,14 @@ function EditUser(props){
   const path = window.location.href
   const uwu = path.split('/').pop()
   const docRef = doc(db, "Users", uwu);
-  console.log(uwu)
-  console.log(props)
-  console.log(props.user)
+  // console.log(uwu)
+  // console.log(props)
+  // console.log(props.user)
   if(uwu != props.user.uid){
-    console.log("salut")
+    //console.log("salut")
   }
   else{
-    console.log("same shit")
+    //console.log("same shit")
   }
   // console.log(props.user.uid)
   const uid = useParams().uid ?? props.user.uid
@@ -233,8 +233,7 @@ function EditUser(props){
     console.log(props.user.uid)
     console.log(uid)
     if(props.user.uid != uid){
-      console.log("different value !")
-      if(name !="" || firstName !="" || Adress !="" || Phone !="" || Licence !="" ){
+      if(document.getElementById("name").value =="" || document.getElementById("firstname").value =="" || document.getElementById("adress").value =="" || document.getElementById("phonenumber").value =="" || document.getElementById("licencenumber").value =="" ){
         alert("Missing information")
       } else {
       const querySnapshot = await updateDoc(doc(db, "Users", uid), {
@@ -252,7 +251,7 @@ function EditUser(props){
     }
     }
     else if(props.user.uid == uid){
-      if(name !="" || firstName !="" || Adress !="" || Phone !="" || Licence !="" ){
+      if(document.getElementById("name").value =="" || document.getElementById("firstname").value =="" || document.getElementById("adress").value =="" || document.getElementById("phonenumber").value =="" || document.getElementById("licencenumber").value =="" ){
         alert("Missing information")
       } else {
       const querySnapshot = await updateDoc(doc(db, "Users", props.user.uid), {
@@ -360,14 +359,18 @@ function UpdateCar(){
 
   async function ModifCar(){
 
-  
-    const docRef = doc(db, "Cars", uid)
-    updateDoc(docRef, car);
-    alert("The car has correctly been updated")
-    window.location.href = "/Voitures"
+    if(document.getElementById("ModelVoiture").value =="" || document.getElementById("MarqueVoiture").value =="" || document.getElementById("Immatriculation").value =="" || document.getElementById("PrixVente").value =="" || document.getElementById("Puissance").value ==""){
+      alert("Missing information")
+    } else {
+      
+      const docRef = doc(db, "Cars", uid)
+      console.log(docRef)
+      updateDoc(docRef, car);
+      alert("The car has correctly been updated")
+      window.location.href = "/Voitures"
+    }
   }
 
-  
 
   //J'affiche mes informations
   return(
