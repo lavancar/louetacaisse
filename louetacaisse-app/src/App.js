@@ -7,7 +7,6 @@ import { useEffect, useState } from 'react';
 import {Route, Routes, Link, useParams} from "react-router-dom"
 import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc, addDoc, updateDoc, where, query } from "firebase/firestore";
 
-
 const provider = new GoogleAuthProvider();
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -196,7 +195,7 @@ function EditUser(props){
   const uid = useParams().uid ?? props.user.uid
   const [name, setName] = useState("")
   const [firstName, setfirstName] = useState("")
-  const [birthDate, setBirthDate] = useState("")
+  // const [birthDate, setBirthDate] = useState("")
   const [Adress, setAdress] = useState("")
   const [Phone, setPhone] = useState("")
   const [Licence, setLicence] = useState("")
@@ -238,7 +237,6 @@ function EditUser(props){
       const querySnapshot = await updateDoc(doc(db, "Users", uid), {
         Name: name,
         Firstname: firstName,
-        Birthdate: birthDate,
         Adress: Adress,
         Phonenumber: Phone,
         Licencenumber: Licence,
@@ -251,7 +249,6 @@ function EditUser(props){
       const querySnapshot = await updateDoc(doc(db, "Users", props.user.uid), {
         Name: name,
         Firstname: firstName,
-        Birthdate: birthDate,
         Adress: Adress,
         Phonenumber: Phone,
         Licencenumber: Licence,
@@ -279,10 +276,6 @@ function EditUser(props){
       <td><input type="text" id="firstname" value={firstName} onChange={e=> setfirstName(e.target.value)}/></td>
       </tr>
       <tr>
-      <td>Birth date :</td>
-      <td><input type="date" id="birthdate"  onChange={e=> setBirthDate(e.target.value)}/></td>
-      </tr>
-      <tr>
       <td>Adress :</td>
       <td><input type="text" id="adress" value={Adress} onChange={e=> setAdress(e.target.value)}/></td>
       </tr>
@@ -301,11 +294,14 @@ function EditUser(props){
       {Role === "admin" ? 
       <tr>
         <td>Role :</td>
-        <td><input type="text" id="role" value={Role} onChange={e=> setRole(e.target.value)}/></td>       
+        {checkRole(Role)}
+        <td><input type="radio" id="radioadmin" value="admin" onChange={e=> setRole(e.target.value)}/>Admin</td>
+        <td><input type="radio" id="radioowner" value="owner" onChange={e=> setRole(e.target.value)}/>Owner</td>
+        <td><input type="radio" id="radiouser" value="user" onChange={e=> setRole(e.target.value)}/>User</td>
       </tr>
       : 
-        <td>Role :</td>
       <tr>
+        <td>Role :</td>
         <td>{Role}</td>
       </tr>      
       }
@@ -320,7 +316,18 @@ function EditUser(props){
 }
 
 
-
+function checkRole(role){
+  console.log(role)
+  if(role == "admin"){
+    document.getElementById("radioadmin").checked = true
+  }
+  else if(role == "user"){
+    document.getElementById("radiouser").checked = true
+  }
+  else if(role == "owner"){
+    document.getElementById("radioowner").checked = true
+  }
+}
 
 function Home(){
   return <div>Home</div>
@@ -529,6 +536,54 @@ function Cars(props){
 }
 
 function Rent(props, carID){
+  var days = prompt("Select the number of day you want to rent : ", 0)
+  days = parseInt(days, 10)
+  if(days > 0){
+    if(days > 30){
+      alert("The maximum time for a location is 30 days !")
+    }
+    else{
+      var today = new Date();
+      var dd = String(today.getDate()).padStart(2, '0');
+      var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+      var yyyy = today.getFullYear();
+      today = mm + '/' + dd + '/' + yyyy;
+      console.log(today)
+      if(parseInt(mm) == 0, 2, 4, 6, 7, 9, 11){ //if mounth == jan, mar, may, jul, aug, oct, dec =>
+        dd = parseInt(dd) + days
+        if(parseInt(dd) > 31){
+          mm = parseInt(mm)+1
+          dd = parseInt(dd)-31
+          var delta = mm + '/' + dd + '/' + yyyy;
+          console.log(delta)
+        }
+        if(parseInt(mm) == 11){
+          if(dd > 30){
+          yyyy = parseInt(yyyy)+1
+          mm = 0
+          var delta = mm + '/' + dd + '/' + yyyy;
+          console.log(delta)
+          }
+        }
+      }
+      else if(parseInt(mm) == 1, 3, 5, 8, 10){
+        dd = parseInt(dd) + days
+        if(parseInt(dd) > 30){
+          mm = parseInt(mm)+1
+          dd = parseInt(dd)-30
+          var delta = mm + '/' + dd + '/' + yyyy;
+          console.log(delta)
+        }
+        var delta = mm + '/' + dd + '/' + yyyy;
+      }
+
+    }
+
+  }
+  else{
+    alert("wrong value")
+  }
+  console.log(days)
   console.log(carID)
   const clientId = props.user.uid 
   console.log(clientId)
