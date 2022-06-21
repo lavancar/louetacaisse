@@ -11,9 +11,6 @@ function EditUser(props){
     const path = window.location.href
     const uwu = path.split('/').pop()
     const docRef = doc(db, "Users", uwu);
-    // console.log(uwu)
-    // console.log(props)
-    // console.log(props.user)
     if(uwu != props.user.uid){
       // console.log("salut")
     }
@@ -60,11 +57,9 @@ function EditUser(props){
       // console.log(props.user.uid)
       // console.log(uid)
       if(props.user.uid != uid){
-        // console.log("different value !")
-        if(name !="" || firstName !="" || Adress !="" || Phone !="" || Licence !="" ){
+        if(document.getElementById("name").value =="" || document.getElementById("firstname").value =="" || document.getElementById("adress").value =="" || document.getElementById("phonenumber").value =="" || document.getElementById("licencenumber").value =="" ){
           alert("Missing information")
-        } 
-        else {
+        } else {
         const querySnapshot = await updateDoc(doc(db, "Users", uid), {
           Name: name,
           Firstname: firstName,
@@ -80,7 +75,7 @@ function EditUser(props){
       }
       }
       else if(props.user.uid == uid){
-        if(name !="" || firstName !="" || Adress !="" || Phone !="" || Licence !="" ){
+        if(document.getElementById("name").value =="" || document.getElementById("firstname").value =="" || document.getElementById("adress").value =="" || document.getElementById("phonenumber").value =="" || document.getElementById("licencenumber").value =="" ){
           alert("Missing information")
         } else {
         const querySnapshot = await updateDoc(doc(db, "Users", props.user.uid), {

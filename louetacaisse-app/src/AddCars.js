@@ -61,6 +61,11 @@ async function PutCar(){
     var PrixVente = document.getElementById('PrixVente').value;
     var Puissance = document.getElementById('Puissance').value;
     //addDoc => remplir la base
+
+    if(Model_voiture =="" || MarqueVoiture =="" || Immatriculation =="" || PrixVente =="" || Puissance ==""){
+        alert("Missing information")
+    } 
+    else {
     const PUSH = await addDoc(collection(db,'Cars'), {
       Brand: MarqueVoiture,
       Model: Model_voiture,
@@ -80,6 +85,7 @@ async function PutCar(){
   
     alert("The car is corectly created !");
     window.location.href = "/Voitures"
-  }
+    }
+}
 
   export default AddCar

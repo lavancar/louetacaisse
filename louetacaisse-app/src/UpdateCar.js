@@ -1,5 +1,5 @@
 import app from "./firebase";
-import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc, addDoc, updateDoc, where, query } from "firebase/firestore";
+import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc, addDoc, updateDoc, where, query, deleteField, deleteDoc } from "firebase/firestore";
 import { useEffect, useState } from 'react';
 import {Container, Col, Row, Button} from "reactstrap";
 import {Route, Routes, Link, useParams} from "react-router-dom"
@@ -37,13 +37,37 @@ function UpdateCar(){
     }
   
     async function ModifCar(){
-  
+        if(document.getElementById("ModelVoiture").value =="" || document.getElementById("MarqueVoiture").value =="" || document.getElementById("Immatriculation").value =="" || document.getElementById("PrixVente").value =="" || document.getElementById("Puissance").value ==""){
+            alert("Missing informations !")
+        } 
+        else {
       
-      const docRef = doc(db, "Cars", uid)
-      updateDoc(docRef, car);
-      alert("The car has correctly been updated")
-      window.location.href = "/Voitures"
+        const docRef = doc(db, "Cars", uid)
+        updateDoc(docRef, car);
+        alert("The car has correctly been updated")
+        window.location.href = "/Voitures"
+        }
     }
+
+    async function DelCar(){
+        console.log("Del car")
+        console.log("UID car " + uid)
+        const carRef = doc(db, "Cars", uid)
+        await updateDoc(carRef, {
+          Available: deleteField(),
+          Brand: deleteField(),
+          Fuel: deleteField(),
+          HP: deleteField(),
+          Model: deleteField(),
+          PlateNumber: deleteField(),
+          Price: deleteField()
+      
+      });
+      await deleteDoc(doc(db, "Cars", uid));
+        
+        alert("The car has correctly been deleted")
+         window.location.href = "/Voitures"
+      }
   
     
   
@@ -94,6 +118,7 @@ function UpdateCar(){
       </table>
   
       <Button><Link to="/Voitures">BACK</Link></Button>
+      <button onClick={DelCar}>DELETE</button>
   
     </div>
     )//fin de mon
