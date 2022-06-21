@@ -234,6 +234,9 @@ function EditUser(props){
     console.log(uid)
     if(props.user.uid != uid){
       console.log("different value !")
+      if(name !="" || firstName !="" || Adress !="" || Phone !="" || Licence !="" ){
+        alert("Missing information")
+      } else {
       const querySnapshot = await updateDoc(doc(db, "Users", uid), {
         Name: name,
         Firstname: firstName,
@@ -244,8 +247,14 @@ function EditUser(props){
         Role: Role
       });
       console.log(querySnapshot)
+      alert("The profil has corectly been updated !");
+    window.location.href = "/"
+    }
     }
     else if(props.user.uid == uid){
+      if(name !="" || firstName !="" || Adress !="" || Phone !="" || Licence !="" ){
+        alert("Missing information")
+      } else {
       const querySnapshot = await updateDoc(doc(db, "Users", props.user.uid), {
         Name: name,
         Firstname: firstName,
@@ -256,11 +265,12 @@ function EditUser(props){
         Role: Role
       });
       console.log(querySnapshot)
-
+      alert("The profil has corectly been updated !");
+    window.location.href = "/"
     }
 
-    alert("The profil has corectly been updated !");
-    window.location.href = "/"
+    }
+    
 
   }
   return (
