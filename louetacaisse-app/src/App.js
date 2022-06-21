@@ -5,7 +5,7 @@ import {Container, Col, Row, Button, Navbar, NavbarBrand, NavbarToggler, Collaps
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from 'react';
 import {Route, Routes, Link, useParams} from "react-router-dom"
-import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc, addDoc, updateDoc, where, query } from "firebase/firestore";
+import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc, addDoc, updateDoc, where, query, deleteField, deleteDoc } from "firebase/firestore";
 
 const provider = new GoogleAuthProvider();
 const auth = getAuth(app);
@@ -371,6 +371,26 @@ function UpdateCar(){
     }
   }
 
+  async function DelCar(){
+    console.log("Del car")
+    console.log("UID car " + uid)
+    const carRef = doc(db, "Cars", uid)
+    await updateDoc(carRef, {
+      Available: deleteField(),
+      Brand: deleteField(),
+      Fuel: deleteField(),
+      HP: deleteField(),
+      Model: deleteField(),
+      PlateNumber: deleteField(),
+      Price: deleteField()
+  
+  });
+  await deleteDoc(doc(db, "Cars", uid));
+    
+    alert("The car has correctly been deleted")
+     window.location.href = "/Voitures"
+  }
+
 
   //J'affiche mes informations
   return(
@@ -408,11 +428,13 @@ function UpdateCar(){
     </table>
 
     <Button><Link to="/Voitures">BACK</Link></Button>
+    <button onClick={DelCar}>Suppr</button>
 
   </div>
   )//fin de mon
 
 }
+
 
 
 
