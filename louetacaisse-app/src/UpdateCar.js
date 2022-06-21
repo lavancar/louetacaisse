@@ -52,21 +52,20 @@ function UpdateCar(){
     async function DelCar(){
         console.log("Del car")
         console.log("UID car " + uid)
-        const carRef = doc(db, "Cars", uid)
-        await updateDoc(carRef, {
-          Available: deleteField(),
-          Brand: deleteField(),
-          Fuel: deleteField(),
-          HP: deleteField(),
-          Model: deleteField(),
-          PlateNumber: deleteField(),
-          Price: deleteField()
-      
-      });
-      await deleteDoc(doc(db, "Cars", uid));
-        
-        alert("The car has correctly been deleted")
-         window.location.href = "/Voitures"
+        if (window.confirm("WARN ! The car is about to be deleted. Continue ?")){
+            const carRef = doc(db, "Cars", uid)
+            await updateDoc(carRef, {
+              Available: deleteField(),
+              Brand: deleteField(),
+              Fuel: deleteField(),
+              HP: deleteField(),
+              Model: deleteField(),
+              PlateNumber: deleteField(),
+              Price: deleteField()
+            });
+            await deleteDoc(doc(db, "Cars", uid));
+            window.location.href = "/Voitures"
+        }
       }
   
     

@@ -83,7 +83,7 @@ async function PutCar(){
     document.getElementById('PrixVente').value = "";
     document.getElementById('Puissance').value = "";
   
-    alert("The car is corectly created !");
+    alert("The car is correctly created !");
     window.location.href = "/Voitures"
     }
 }
