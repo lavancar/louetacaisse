@@ -43,7 +43,7 @@ function UpdateCar(){
         else {
       
         const docRef = doc(db, "Cars", uid)
-        updateDoc(docRef, car);
+        await updateDoc(docRef, car);
         alert("The car has correctly been updated")
         window.location.href = "/Voitures"
         }
