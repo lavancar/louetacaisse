@@ -117,7 +117,7 @@ function UpdateCar(){
       </table>
   
       <Button><Link to="/Voitures">BACK</Link></Button>
-      <button onClick={DelCar}>DELETE</button>
+      <button onClick={DelCar} id="delbtn">DELETE</button>
   
     </div>
     )//fin de mon

@@ -3,7 +3,7 @@ import "./App.css"
 import { GoogleAuthProvider, getAuth, signInWithRedirect, onAuthStateChanged, signOut } from "firebase/auth";
 import {Container, Col, Row, Button, Navbar, NavbarBrand, NavbarToggler, Collapse, Nav, NavItem, NavLink} from "reactstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {Route, Routes, Link, useParams} from "react-router-dom"
 import { collection, doc, Firestore, getDocs, getFirestore, setDoc, getDoc, addDoc, updateDoc, where, query } from "firebase/firestore";
 import EditUser from "./EditUser"
@@ -11,6 +11,8 @@ import UpdateCar from "./UpdateCar"
 import Cars from "./Cars"
 import AddCar from "./AddCars"
 import Profil from "./Profil"
+import Map from "./Map"
+
 
 const provider = new GoogleAuthProvider();
 const auth = getAuth(app);
@@ -23,7 +25,10 @@ let newName;
 
 
 function Home(){
-  return <div>Home</div>
+  return(
+    <Map/>
+  )
+  // return <div>Home</div>
 }
 
 function App() {
