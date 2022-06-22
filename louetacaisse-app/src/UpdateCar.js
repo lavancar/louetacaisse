@@ -82,17 +82,13 @@ function UpdateCar(){
         </tr>
         <tr>
           <td>Type d'essence</td>
-          <td><input type="text" id="EssenceVoiture" value={car.Fuel} onChange={e => setMyCar({...car, Fuel: e.target.value})}></input></td>
-        </tr>
-        <tr>
-          <td>Type d'essence</td>
-          <td><select id="EssenceVoiture">
-            <option value={car.Fuel}></option>
+          <td><select value={car.Fuel} onChange={e => setMyCar({...car, Fuel: e.target.value})} id="EssenceVoiture" >
             <option value="Essence">Essence</option>
             <option value="Hybrid">Hybrid</option>
             <option value="Electric">Electric</option>
             <option value="PHEV">PHEV</option>
-          </select></td>
+          </select>
+          </td>
         </tr>
         
         <tr>

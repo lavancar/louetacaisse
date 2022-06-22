@@ -21,8 +21,14 @@ function AddCar(){
         <td><input type="text" id="ModelVoiture"></input></td>
       </tr>
       <tr>
-        <td>Type d'essence</td>
-        <td><input type="text" id="EssenceVoiture"></input></td>
+          <td>Type d'essence</td>
+          <td><select id="EssenceVoiture" >
+            <option value="Essence">Essence</option>
+            <option value="Hybrid">Hybrid</option>
+            <option value="Electric">Electric</option>
+            <option value="PHEV">PHEV</option>
+          </select>
+          </td> 
       </tr>
       <tr>
         <td>Marque de la voiture</td>
