@@ -44,7 +44,7 @@ function Profil(props){
         {/* {console.log(Profil.Role)} */}
         {Profil.Role === "admin" ?
           // ListUsers()
-          <table>
+          <table id="userTable">
             <thead>
               <td>Name</td>
               <td>FirstName</td>
@@ -74,7 +74,7 @@ function Profil(props){
                     <li>{user.Role}</li>
                   </td>
                   <td>
-                  <Button><Link to={`/Update/${user.id}`}>UPDATE</Link></Button>
+                  <button><Link to={`/Update/${user.id}`}  style={{ textDecoration: 'none', color: "black"}}>UPDATE</Link></button>
                   </td>
                 </tr>
                 )
@@ -114,7 +114,7 @@ function Profil(props){
                 <td>{Profil.Role}</td>
               </tr>
             </tbody>
-            <Button><Link to={`/Update/${props.user.uid}`}>UPDATE</Link></Button>
+            <button><Link to={`/Update/${props.user.uid}`}  style={{ textDecoration: 'none', color: "black"}}>UPDATE</Link></button>
   
           </table>
         }

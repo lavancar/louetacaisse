@@ -112,7 +112,7 @@ function UpdateCar(){
   
       </table>
   
-      <Button><Link to="/Voitures">BACK</Link></Button>
+      <button><Link to="/Voitures"  style={{ textDecoration: 'none', color: "black"}}>BACK</Link></button>
       <button onClick={DelCar} id="delbtn">DELETE</button>
   
     </div>

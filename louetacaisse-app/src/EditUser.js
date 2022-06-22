@@ -24,7 +24,7 @@ function EditUser(props){
     const [Adress, setAdress] = useState("")
     const [Phone, setPhone] = useState("")
     const [Licence, setLicence] = useState("")
-    const [ProfilPicture, setPicture] = useState("")
+    // const [ProfilPicture, setPicture] = useState("")
     const [users, setUsers] = useState()
     const [Role, setRole] = useState("")
   
@@ -43,7 +43,7 @@ function EditUser(props){
           setAdress(querySnapshot.data().Adress)
           setPhone(querySnapshot.data().Phonenumber)
           setLicence(querySnapshot.data().Licencenumber)
-          setPicture(querySnapshot.data().ProfilPicture)
+        //   setPicture(querySnapshot.data().ProfilPicture)
           setRole(querySnapshot.data().Role)
           // setBirthDate(querySnapshot.data().birthDate)
         }
@@ -66,7 +66,7 @@ function EditUser(props){
           Adress: Adress,
           Phonenumber: Phone,
           Licencenumber: Licence,
-          ProfilPicture: ProfilPicture,
+        //   ProfilPicture: ProfilPicture,
           Role: Role
         });
         console.log(querySnapshot)
@@ -84,7 +84,7 @@ function EditUser(props){
           Adress: Adress,
           Phonenumber: Phone,
           Licencenumber: Licence,
-          ProfilPicture: ProfilPicture,
+        //   ProfilPicture: ProfilPicture,
           Role: Role
         });
         console.log(querySnapshot)
@@ -120,10 +120,10 @@ function EditUser(props){
         <td>Licence number :</td>
         <td><input type="number" id="licencenumber" value={Licence} onChange={e=> setLicence(e.target.value)}/></td>
         </tr>
-        <tr>
+        {/* <tr>
         <td>Profil Picture :</td>
         <td><input type="text" id="ProfilPicture" value={ProfilPicture} onChange={e=> setPicture(e.target.value)}/></td>
-        </tr>
+        </tr> */}
         {props.role === "admin" ? 
         <tr>
           <td>Role :</td>
@@ -140,8 +140,8 @@ function EditUser(props){
         </tr>      
         }
   
-        <Button><Link to={`/Profil/${props.user.uid}`}>Back</Link></Button>
-        <Button onClick={addUser}>Valider</Button>
+        <button><Link to={`/Profil/${props.user.uid}`}  style={{ textDecoration: 'none', color: "black"}}>Back</Link></button>
+        <button onClick={addUser}>Valider</button>
         </>
         }
   

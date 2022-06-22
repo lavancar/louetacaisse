@@ -69,7 +69,7 @@ function Cars(props){
             <td>Price</td>
             <td>Power</td>
             {role === "admin" ?
-                <td><Button><Link to={`/AddCar`}>ADD</Link></Button></td>
+                <td><button><Link to={`/AddCar`} style={{ textDecoration: 'none', color: "black"}}>ADD</Link></button></td>
                     :
                   <td></td>
                   }
@@ -100,9 +100,9 @@ function Cars(props){
                 </td>
                 <td>
                   {role === "admin" ?
-                    <li><Button> <Link to={`/UpdateCar/${car.id}`} tag={Link}> UPDATE </Link></Button></li>
+                    <li><button> <Link to={`/UpdateCar/${car.id}`} tag={Link}  style={{ textDecoration: 'none', color: "black"}}> UPDATE </Link></button></li>
                     :
-                    <li><Button onClick={() => Rent(props, car.id)}>RENT</Button></li>
+                    <li><button onClick={() => Rent(props, car.id)}>RENT</button></li>
                   }
   
                 </td>
@@ -136,6 +136,7 @@ function Cars(props){
             dd = parseInt(dd)-31
             var delta = mm + '/' + dd + '/' + yyyy;
             console.log(delta)
+            alert("Your car is reserved until the "+delta)
           }
           if(parseInt(mm) == 11){
             if(dd > 30){
@@ -170,12 +171,12 @@ function Cars(props){
     const PUSH = addDoc(collection(db,'Reservation'), {
       CarId: carID,
       ClientId: clientId,
+      DateEnd: delta,
     });
     const washingtonRef = doc(db, "Cars", carID);
     updateDoc(washingtonRef, {
       Available: false
     });
-  
-  
+    window.location.href = "/Voitures"
   }
   export default Cars
